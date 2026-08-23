@@ -1,34 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Obsidian & Champagne Gold Luxury Theme */
-  --bg-primary: #030304;      /* Chuqur Obsidian fon */
-  --bg-secondary: #0a0a0f;    /* Obsidian shisha card foni */
-  --bg-tertiary: #111118;     /* Oddiy elementlar foni */
-  
-  --bg-glass: rgba(10, 10, 15, 0.75);
-  --border-glass: rgba(223, 186, 115, 0.12); /* Yupqa oltin hoshiya */
-  --border-glass-hover: rgba(223, 186, 115, 0.35);
-  
-  --accent-gold: #dfba73;     /* Hashamatli Shampan Oltini */
-  --accent-gold-hover: #edd5a3;
-  --accent-gold-glow: rgba(223, 186, 115, 0.3);
-  --accent-gold-light: rgba(223, 186, 115, 0.06);
+  /* Ivory & Champagne Gold Luxury Theme (light) */
+  --bg-primary: #faf8f4;      /* Iliq fil suyagi fon */
+  --bg-secondary: #ffffff;    /* Oq shisha card foni */
+  --bg-tertiary: #f2efe7;     /* Oddiy elementlar foni */
 
-  --accent-platinum: #f1f5f9;  /* Platina kumushi (matnlar uchun) */
-  --accent-silver: #94a3b8;    /* Kumushrang (ikkinchi darajali) */
-  --text-primary: #ffffff;     /* Sof oq */
-  --text-secondary: #cbd5e1;   /* Och kumush */
-  --text-muted: #64748b;       /* Muted kumush */
-  
-  --border-color: #161622;
-  
-  --success: #10b981;
-  --success-light: rgba(16, 185, 129, 0.08);
-  --danger: #f43f5e;
-  --danger-light: rgba(244, 63, 94, 0.08);
-  --warning: #eab308;
-  --warning-light: rgba(234, 179, 8, 0.08);
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --border-glass: rgba(184, 135, 74, 0.18); /* Yupqa oltin hoshiya */
+  --border-glass-hover: rgba(184, 135, 74, 0.4);
+
+  --accent-gold: #b8874a;     /* Hashamatli Shampan Oltini */
+  --accent-gold-hover: #a3743a;
+  --accent-gold-glow: rgba(184, 135, 74, 0.25);
+  --accent-gold-light: rgba(184, 135, 74, 0.08);
+
+  --accent-emerald: #0f6b52;   /* Zumrad urg'u (sarlavhalar uchun) */
+  --accent-platinum: #1c1917;  /* To'q matn (avvalgi oq o'rniga) */
+  --accent-silver: #57534e;    /* O'rta darajadagi to'q kulrang */
+  --text-primary: #1c1917;     /* Deyarli qora, iliq */
+  --text-secondary: #44403c;   /* To'q kulrang */
+  --text-muted: #78716c;       /* Muted kulrang */
+
+  --border-color: #e7e2d9;
+
+  --success: #0f9d6e;
+  --success-light: rgba(15, 157, 110, 0.1);
+  --danger: #e11d48;
+  --danger-light: rgba(225, 29, 72, 0.08);
+  --warning: #b45309;
+  --warning-light: rgba(180, 83, 9, 0.1);
 
   --radius-3xl: 28px;
   --radius-2xl: 20px;
@@ -65,10 +66,9 @@ body {
   line-height: 1.5;
   overflow-x: hidden;
   /* Ambient Aura Glow for Luxury effect */
-  background-image: 
-    radial-gradient(circle at 100% 0%, rgba(223, 186, 115, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 0% 100%, rgba(223, 186, 115, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(10, 10, 15, 0.5) 0%, transparent 80%);
+  background-image:
+    radial-gradient(circle at 100% 0%, rgba(184, 135, 74, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(15, 107, 82, 0.05) 0%, transparent 50%);
   background-attachment: fixed;
   letter-spacing: -0.1px;
 }
@@ -82,7 +82,7 @@ body {
 }
 
 header {
-  background: rgba(3, 3, 4, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   border-bottom: 1px solid var(--border-color);
   padding: 1.1rem 1.5rem;
   position: sticky;
@@ -117,7 +117,7 @@ header {
   font-weight: 800;
   font-size: 1.45rem;
   letter-spacing: -0.7px;
-  background: linear-gradient(135deg, #ffffff 40%, var(--accent-gold) 100%);
+  background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent-gold) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -140,7 +140,7 @@ header {
 
 .nav-toggle-btn:hover {
   border-color: var(--accent-gold);
-  color: #ffffff;
+  color: var(--text-primary);
   background: var(--accent-gold-light);
 }
 
@@ -183,9 +183,9 @@ main {
 
 /* Groom Card (Oltin paket) */
 .card.groom-card {
-  border: 1px solid rgba(223, 186, 115, 0.25);
-  background: linear-gradient(150deg, rgba(10, 10, 15, 0.95) 0%, rgba(223, 186, 115, 0.03) 100%);
-  box-shadow: var(--shadow-md), inset 0 0 15px rgba(223, 186, 115, 0.03);
+  border: 1px solid rgba(184, 135, 74, 0.3);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95) 0%, rgba(184, 135, 74, 0.06) 100%);
+  box-shadow: var(--shadow-md), inset 0 0 15px rgba(184, 135, 74, 0.04);
 }
 
 .card.groom-card:hover {
@@ -417,8 +417,8 @@ main {
 }
 
 .timeline-block.free {
-  background: #111118;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
 }
 .timeline-block.free:hover {
   background: var(--accent-gold-light);
@@ -530,7 +530,7 @@ main {
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .service-details p {
@@ -543,7 +543,7 @@ main {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.15rem;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .service-item.selected .service-price {
@@ -609,7 +609,7 @@ main {
   font-size: 1.45rem;
   font-family: var(--font-display);
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 /* Slots Grid */
@@ -624,7 +624,7 @@ main {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  color: #ffffff;
+  color: var(--text-primary);
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.85rem;
@@ -647,9 +647,9 @@ main {
 }
 
 .slot-btn:disabled {
-  opacity: 0.18;
+  opacity: 0.5;
   cursor: not-allowed;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--border-color);
   border-color: transparent;
   color: var(--text-muted);
 }
@@ -787,7 +787,7 @@ main {
 .pin-key {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  color: #ffffff;
+  color: var(--text-primary);
   border-radius: var(--radius-xl);
   padding: 1.1rem 0;
   font-size: 1.4rem;
@@ -837,7 +837,7 @@ main {
 .stat-icon.income { background: var(--success-light); color: var(--success); }
 .stat-icon.expense { background: var(--danger-light); color: var(--danger); }
 .stat-icon.bookings { background: var(--accent-gold-light); color: var(--accent-gold); border-color: rgba(223, 186, 115, 0.2); }
-.stat-icon.net { background: rgba(255, 255, 255, 0.03); color: #ffffff; }
+.stat-icon.net { background: var(--bg-tertiary); color: var(--text-primary); }
 
 .stat-details h5 {
   font-size: 0.7rem;
@@ -872,7 +872,7 @@ main {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  color: #ffffff;
+  color: var(--text-primary);
   font-family: var(--font-body);
   font-size: 0.9rem;
   outline: none;
@@ -915,8 +915,8 @@ main {
 }
 
 .sidebar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.02);
-  color: #ffffff;
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-primary);
 }
 
 .sidebar-nav-item.active {
