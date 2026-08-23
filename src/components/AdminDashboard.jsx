@@ -530,7 +530,7 @@ export default function AdminDashboard({ onDataChange }) {
         </div>
         <h2 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--accent-emerald)', marginBottom: '0.25rem' }}>Sartarosh Paneli</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '1rem' }}>
-          Tizimga kirish uchun PIN-kodni yozing (Standart: 7777)
+          Tizimga kirish uchun PIN-kodni kiriting
         </p>
 
         {errorMsg && (
