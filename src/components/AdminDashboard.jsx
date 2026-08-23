@@ -1076,14 +1076,33 @@ export default function AdminDashboard({ onDataChange }) {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Usta Rasmi URL (Rasm havolasi)</label>
+                    <label className="form-label">Usta Rasmi (Telefon galereyasidan yuklash)</label>
                     <input 
-                      type="text" 
+                      type="file" 
+                      accept="image/*" 
                       className="form-input" 
-                      placeholder="https://..." 
-                      value={settings.barberImage || ''} 
-                      onChange={(e) => handleSettingsChange('barberImage', e.target.value)} 
+                      style={{ padding: '0.4rem', fontSize: '0.8rem' }}
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          if (file.size > 2.5 * 1024 * 1024) {
+                            alert("Rasm hajmi 2.5MB dan kichik bo'lishi kerak!");
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            handleSettingsChange('barberImage', reader.result);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }} 
                     />
+                    {settings.barberImage && (
+                      <div style={{ marginTop: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <img src={settings.barberImage} alt="Preview" style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--accent-gold)' }} />
+                        <span style={{ fontSize: '0.72rem', color: 'var(--success)', fontWeight: 700 }}>Rasm yuklandi!</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

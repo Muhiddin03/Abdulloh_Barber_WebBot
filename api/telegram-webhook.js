@@ -41,7 +41,12 @@ export default async function handler(req, res) {
     let botToken = queryToken || process.env.VITE_TELEGRAM_BOT_TOKEN;
     let webAppUrl = queryAppUrl || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `https://${req.headers.host}`);
 
-    // Try reading settings from Firebase if configured
+    const queryBarberName = req.query?.barberName;
+    const queryBarberBio = req.query?.barberBio;
+
+    let barberName = queryBarberName || 'Abdulloh Master';
+    let barberBio = queryBarberBio || '10 yillik tajribaga ega professional erkaklar sartaroshi va stilist.';
+
     if (admin.apps.length) {
       try {
         const db = admin.firestore();
@@ -53,6 +58,8 @@ export default async function handler(req, res) {
           if (s.address) address = s.address;
           if (s.telegramBotToken) botToken = s.telegramBotToken;
           if (s.webAppUrl) webAppUrl = s.webAppUrl;
+          if (s.barberName) barberName = s.barberName;
+          if (s.barberBio) barberBio = s.barberBio;
         }
       } catch (e) {
         console.error('Firestore read error in webhook:', e);
@@ -70,9 +77,12 @@ export default async function handler(req, res) {
     }
 
     let replyText = `Assalomu alaykum! 💈 <b>${shopName}</b> rasmiy Telegram botiga xush kelibsiz!\n\n` +
-      `Online navbat olish hamda xizmatlar narxlari bilan tanishish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing.\n\n` +
+      `👑 <b>Usta Sartarosh:</b> ${barberName}\n` +
+      `📝 <b>Ma'lumot:</b> ${barberBio}\n\n` +
+      `📍 <b>Manzil:</b> ${address}\n` +
       `📞 <b>Telefon:</b> ${phone}\n` +
-      `📍 <b>Manzil:</b> ${address}`;
+      `🕒 <b>Ish vaqti:</b> Har kuni 09:00 - 20:00\n\n` +
+      `Online navbat olish hamda xizmatlar bilan tanishish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing 👇`;
 
     if (text.includes('xizmat') || text.includes('narx')) {
       replyText = `💈 <b>${shopName} Xizmatlari va Narxlari:</b>\n\n` +
@@ -84,6 +94,7 @@ export default async function handler(req, res) {
     } else if (text.includes('manzil') || text.includes('telefon') || text.includes('aloqa')) {
       replyText = `📍 <b>Manzil va Bog'lanish:</b>\n\n` +
         `🏢 <b>Sartaroshxona:</b> ${shopName}\n` +
+        `👑 <b>Usta:</b> ${barberName}\n` +
         `📍 <b>Manzil:</b> ${address}\n` +
         `📞 <b>Telefon:</b> ${phone}\n\n` +
         `Navbat band qilish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing!`;
