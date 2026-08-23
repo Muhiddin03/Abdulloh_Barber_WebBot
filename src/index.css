@@ -7,7 +7,7 @@
   --bg-tertiary: #f1f5f9;       /* Elementlar uchun neytral fon */
   --bg-card: #ffffff;
   
-  --bg-glass: rgba(255, 255, 255, 0.92);
+  --bg-glass: rgba(255, 255, 255, 0.95);
   --border-glass: rgba(226, 232, 240, 0.9);
   --border-glass-hover: rgba(217, 119, 6, 0.4);
 
@@ -25,7 +25,7 @@
   --accent-brass-light: rgba(217, 119, 6, 0.12);
   --accent-silver: #64748b;     /* Slate kulrang */
 
-  /* Text Colors (O'qilishi 100% oson va tiniq) */
+  /* Text Colors (O'qilishi 100% oson va tiniq, hech qanday qirqilishsiz) */
   --text-primary: #0f172a;      /* Aniq to'q qora-ko'k matn */
   --text-secondary: #334155;    /* O'rta to'q matn */
   --text-muted: #64748b;        /* Muted kulrang */
@@ -73,7 +73,6 @@ body {
   font-family: var(--font-body);
   line-height: 1.5;
   overflow-x: hidden;
-  /* Soft Ambient Aura Gradient for Bright Luxury look */
   background-image:
     radial-gradient(circle at 100% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
     radial-gradient(circle at 0% 100%, rgba(217, 119, 6, 0.05) 0%, transparent 55%);
@@ -81,7 +80,6 @@ body {
   letter-spacing: -0.1px;
 }
 
-/* App Container */
 .app-container {
   min-height: 100vh;
   min-height: 100dvh;
@@ -90,7 +88,7 @@ body {
 }
 
 header {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   border-bottom: 1px solid var(--border-color);
   padding: 0.9rem 1.25rem;
   position: sticky;
@@ -170,7 +168,7 @@ main {
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3.5rem;
+  padding: 1.5rem 1rem 4rem;
 }
 
 /* Luxury Glassmorphic Card */
@@ -187,14 +185,12 @@ main {
   transition: var(--transition-normal);
 }
 
-/* Hover effect */
 .card.hoverable:hover {
   transform: translateY(-2px);
   border-color: var(--border-glass-hover);
   box-shadow: var(--shadow-lg), var(--shadow-gold);
 }
 
-/* Groom Card (Oltin paket) */
 .card.groom-card {
   border: 1px solid rgba(217, 119, 6, 0.35);
   background: linear-gradient(150deg, #ffffff 0%, rgba(217, 119, 6, 0.06) 100%);
@@ -293,12 +289,12 @@ main {
   flex-shrink: 0;
 }
 
-/* Barber Live Status Panel */
+/* Barber Live Status Panel (No text truncation!) */
 .barber-status-widget {
   background: rgba(16, 185, 129, 0.06);
   border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: var(--radius-xl);
-  padding: 0.85rem 1.15rem;
+  padding: 0.9rem 1.15rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -318,6 +314,7 @@ main {
   align-items: center;
   gap: 0.65rem;
   min-width: 0;
+  flex: 1;
 }
 
 .pulse-dot {
@@ -340,9 +337,9 @@ main {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .status-label strong {
@@ -352,7 +349,7 @@ main {
 
 .status-time {
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--accent-gold);
   background: #ffffff;
   padding: 0.35rem 0.7rem;
@@ -363,11 +360,7 @@ main {
   white-space: nowrap;
 }
 
-/* LUXURY BOOKING TIMELINE */
-.visual-timeline-container {
-  margin-top: 0.25rem;
-}
-
+/* MOBILE-NATIVE TODAY'S SCHEDULE GRID (No ugly horizontal scrollbar!) */
 .timeline-title-row {
   display: flex;
   justify-content: space-between;
@@ -402,97 +395,58 @@ main {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.legend-dot.free { background: #cbd5e1; }
+.legend-dot.free { background: var(--success); }
 .legend-dot.busy { background: var(--danger); }
 .legend-dot.groom { background: var(--accent-gold); }
 
-.timeline-track {
-  background: #ffffff;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: 0.9rem 0.85rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+.today-slots-wrap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3.8rem, 1fr));
+  gap: 0.45rem;
 }
 
-.timeline-hours-row {
+.today-slot-pill {
   display: flex;
-  min-width: 580px;
-  justify-content: space-between;
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px dashed var(--border-color);
-}
-
-.timeline-hour-mark {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.25rem;
+  border-radius: var(--radius-md);
+  font-size: 0.76rem;
   font-family: var(--font-display);
-  font-weight: 700;
-  text-align: center;
-  width: 36px;
-}
-
-.timeline-blocks-container {
-  display: flex;
-  min-width: 580px;
-  height: 32px;
-  gap: 4px;
-}
-
-.timeline-block {
-  flex: 1;
-  height: 100%;
-  border-radius: 6px;
+  font-weight: 800;
   transition: var(--transition-fast);
   cursor: pointer;
-  position: relative;
+  user-select: none;
 }
 
-.timeline-block.free {
+.today-slot-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.today-slot-pill.free {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
-.timeline-block.free:hover {
-  background: var(--accent-gold-light);
-  border-color: var(--accent-gold);
-  transform: translateY(-2px);
-}
+.today-slot-pill.free .pill-dot { background: var(--success); }
 
-.timeline-block.busy {
-  background: linear-gradient(160deg, #f43f5e 0%, #e11d48 100%);
-  border: 1px solid rgba(225, 29, 72, 0.5);
-  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.2);
+.today-slot-pill.busy {
+  background: var(--danger-light);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: var(--danger);
 }
+.today-slot-pill.busy .pill-dot { background: var(--danger); }
 
-.timeline-block.groom {
-  background: var(--gradient-gold);
-  border: 1px solid var(--accent-gold);
-  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+.today-slot-pill.groom {
+  background: var(--accent-brass-light);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  color: var(--accent-gold);
 }
-
-.timeline-block-tooltip {
-  display: none;
-  position: absolute;
-  bottom: 135%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text-primary);
-  color: #ffffff;
-  padding: 4px 8px;
-  border-radius: var(--radius-md);
-  font-size: 0.68rem;
-  font-weight: 600;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 10;
-  box-shadow: var(--shadow-md);
-}
-
-.timeline-block:hover .timeline-block-tooltip {
-  display: block;
-}
+.today-slot-pill.groom .pill-dot { background: var(--accent-gold); }
 
 /* Service Items (Catalog Cards) */
 .services-list {
@@ -749,7 +703,7 @@ main {
   cursor: not-allowed;
 }
 
-/* Slots Grid (Fully Mobile Responsive) */
+/* Slots Grid */
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
@@ -848,7 +802,7 @@ main {
   color: #ffffff;
 }
 
-/* Modals (No text cut-off, comfortable mobile height) */
+/* Modals */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -964,27 +918,28 @@ main {
   transform: scale(0.94);
 }
 
-/* Stats Cards */
+/* Stats Cards (No truncation for currency numbers!) */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
 }
 
 .stat-card {
   background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  padding: 1.1rem 0.9rem;
+  padding: 0.95rem 0.75rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
 }
 
 .stat-icon {
-  width: 2.6rem;
-  height: 2.6rem;
+  width: 2.3rem;
+  height: 2.3rem;
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
@@ -999,29 +954,30 @@ main {
 
 .stat-details {
   min-width: 0;
-  overflow-wrap: break-word;
+  flex: 1;
 }
 
 .stat-details h5 {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   margin-bottom: 0.15rem;
-  font-weight: 700;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .stat-value {
-  font-size: 1.15rem;
+  font-size: 1.02rem;
   font-family: var(--font-display);
   font-weight: 800;
   color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
-/* Form Inputs (16px to prevent iOS auto-zoom) */
+/* Form Inputs */
 .form-group {
   margin-bottom: 1.15rem;
 }
@@ -1195,7 +1151,7 @@ main {
   gap: 0.75rem;
 }
 
-/* Finance Table styling */
+/* Finance Table styling (Mobile Friendly) */
 .finance-split {
   display: grid;
   grid-template-columns: 1fr 280px;
@@ -1211,7 +1167,7 @@ main {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  min-width: 480px;
+  min-width: 460px;
 }
 
 .transaction-table th {
@@ -1356,7 +1312,7 @@ main {
 
 @media (max-width: 640px) {
   main {
-    padding: 1rem 0.75rem 4rem;
+    padding: 1rem 0.75rem 4.5rem;
   }
   
   .card {
@@ -1419,6 +1375,16 @@ main {
     padding: 1.15rem;
     border-radius: var(--radius-xl);
   }
+
+  .barber-status-widget {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .status-time {
+    align-self: flex-start;
+  }
 }
 
 @media (max-width: 380px) {
@@ -1433,5 +1399,9 @@ main {
 
   .slots-grid {
     grid-template-columns: repeat(auto-fill, minmax(3.8rem, 1fr));
+  }
+
+  .today-slots-wrap-grid {
+    grid-template-columns: repeat(auto-fill, minmax(3.4rem, 1fr));
   }
 }

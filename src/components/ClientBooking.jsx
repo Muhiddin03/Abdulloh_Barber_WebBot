@@ -422,38 +422,31 @@ export default function ClientBooking({ onBookingSuccess }) {
         </div>
       )}
 
-      {/* Visual Timeline Widget */}
+      {/* Visual Schedule Grid (Mobile Native - No horizontal scrollbar needed) */}
       {step < 4 && todayTimelineBlocks.length > 0 && (
-        <div className="card" style={{ marginBottom: '1.25rem', padding: '1rem' }}>
-          <div className="visual-timeline-container">
-            <div className="timeline-title-row">
-              <h4 style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontFamily: 'var(--font-body)', fontWeight: 700 }}>
-                <Clock size={14} className="text-gold" style={{ color: 'var(--accent-brass)' }} /> Bugungi bandlik jadvali
-              </h4>
-              <div className="timeline-legend">
-                <div className="legend-item"><span className="legend-dot free" /> Bo'sh</div>
-                <div className="legend-item"><span className="legend-dot busy" /> Band</div>
-                <div className="legend-item"><span className="legend-dot groom" /> Kuyov</div>
-              </div>
+        <div className="card" style={{ marginBottom: '1.25rem', padding: '1.15rem 1rem' }}>
+          <div className="timeline-title-row" style={{ marginBottom: '0.65rem' }}>
+            <h4 style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'var(--font-body)', fontWeight: 800, color: 'var(--text-primary)' }}>
+              <Clock size={15} style={{ color: 'var(--accent-brass)' }} /> Bugungi kunlik jadval
+            </h4>
+            <div className="timeline-legend">
+              <div className="legend-item"><span className="legend-dot free" /> Bo'sh ({todayTimelineBlocks.filter(b => b.status === 'free').length})</div>
+              <div className="legend-item"><span className="legend-dot busy" /> Band ({todayTimelineBlocks.filter(b => b.status === 'busy').length})</div>
+              <div className="legend-item"><span className="legend-dot groom" /> Kuyov ({todayTimelineBlocks.filter(b => b.status === 'groom').length})</div>
             </div>
-            
-            <div className="timeline-track">
-              <div className="timeline-hours-row">
-                {todayTimelineBlocks.filter((_, idx) => idx % 2 === 0).map(block => (
-                  <span key={block.time} className="timeline-hour-mark">{block.time}</span>
-                ))}
+          </div>
+          
+          <div className="today-slots-wrap-grid">
+            {todayTimelineBlocks.map(block => (
+              <div 
+                key={block.time} 
+                className={`today-slot-pill ${block.status}`}
+                title={block.tooltip}
+              >
+                <span className="pill-dot" />
+                <span>{block.time}</span>
               </div>
-              <div className="timeline-blocks-container">
-                {todayTimelineBlocks.map(block => (
-                  <div 
-                    key={block.time} 
-                    className={`timeline-block ${block.status}`}
-                  >
-                    <span className="timeline-block-tooltip">{block.tooltip}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       )}

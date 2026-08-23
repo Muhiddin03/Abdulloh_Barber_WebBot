@@ -157,6 +157,37 @@ export const dbService = {
     return false;
   },
 
+  addService: async (serviceData) => {
+    const newService = {
+      id: 's_' + Math.random().toString(36).substr(2, 9),
+      icon: 'Scissors',
+      type: 'regular',
+      ...serviceData
+    };
+    if (isFirebaseEnabled) {
+      await setDoc(doc(db, 'services', newService.id), newService);
+      return newService;
+    }
+    const services = await dbService.getServices();
+    services.push(newService);
+    await dbService.saveServices(services);
+    return newService;
+  },
+
+  deleteService: async (serviceId) => {
+    if (isFirebaseEnabled) {
+      await deleteDoc(doc(db, 'services', serviceId));
+      return true;
+    }
+    const services = await dbService.getServices();
+    const filtered = services.filter(s => s.id !== serviceId);
+    if (filtered.length !== services.length) {
+      await dbService.saveServices(filtered);
+      return true;
+    }
+    return false;
+  },
+
   // --- BOOKINGS ---
   // Public fields only (date/time/status/service) — no client PII. Safe for the
   // public booking page to read so it can compute free/busy slots.

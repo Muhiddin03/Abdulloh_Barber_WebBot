@@ -65,6 +65,9 @@ export default function AdminDashboard({ onDataChange }) {
   const [showAddTxModal, setShowAddTxModal] = useState(false);
   const [newTx, setNewTx] = useState({ type: 'expense', amount: '', category: '', description: '', date: new Date().toISOString().split('T')[0] });
 
+  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+  const [newServiceData, setNewServiceData] = useState({ name: '', price: '', duration: '30', description: '', type: 'regular', icon: 'Scissors' });
+
   const [editingServiceId, setEditingServiceId] = useState(null);
   const [editServiceData, setEditServiceData] = useState({ name: '', price: '', duration: '', description: '', type: 'regular' });
 
@@ -379,6 +382,34 @@ export default function AdminDashboard({ onDataChange }) {
     loadAllData();
   };
 
+  const handleCreateService = async (e) => {
+    e.preventDefault();
+    if (!newServiceData.name || !newServiceData.price) {
+      alert("Xizmat nomi va narxini kiriting!");
+      return;
+    }
+    await dbService.addService({
+      name: newServiceData.name,
+      price: parseFloat(newServiceData.price),
+      duration: parseInt(newServiceData.duration || 30),
+      description: newServiceData.description || '',
+      type: newServiceData.type || 'regular',
+      icon: newServiceData.icon || 'Scissors'
+    });
+    setShowAddServiceModal(false);
+    setNewServiceData({ name: '', price: '', duration: '30', description: '', type: 'regular', icon: 'Scissors' });
+    loadAllData();
+    if (onDataChange) onDataChange();
+  };
+
+  const handleDeleteService = async (id) => {
+    if (window.confirm("Ushbu xizmatni o'chirasizmi?")) {
+      await dbService.deleteService(id);
+      loadAllData();
+      if (onDataChange) onDataChange();
+    }
+  };
+
   const handleSettingsSave = async (e) => {
     e.preventDefault();
     await dbService.saveSettings(settings);
@@ -605,27 +636,31 @@ export default function AdminDashboard({ onDataChange }) {
               }}>Ertaga</button>
             </div>
 
-            {/* Timeline Blocks for Barber (shows client names!) */}
+            {/* Mobile Native Schedule Grid for Barber */}
             {timelineBlocks.length > 0 && (
-              <div className="card" style={{ padding: '1rem' }}>
-                <h4 style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.5rem', fontWeight: 700 }}>
-                  <Clock size={14} className="text-gold" style={{ color: 'var(--accent-brass)' }} /> Bandlik jadvali ({selectedDate})
-                </h4>
-                <div className="visual-timeline-container" style={{ marginTop: 0 }}>
-                  <div className="timeline-track">
-                    <div className="timeline-hours-row">
-                      {timelineBlocks.filter((_, idx) => idx % 2 === 0).map(block => (
-                        <span key={block.time} className="timeline-hour-mark">{block.time}</span>
-                      ))}
-                    </div>
-                    <div className="timeline-blocks-container">
-                      {timelineBlocks.map(block => (
-                        <div key={block.time} className={`timeline-block ${block.status}`}>
-                          <span className="timeline-block-tooltip">{block.tooltip}</span>
-                        </div>
-                      ))}
-                    </div>
+              <div className="card" style={{ padding: '1.15rem 1rem' }}>
+                <div className="timeline-title-row" style={{ marginBottom: '0.65rem' }}>
+                  <h4 style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'var(--font-body)', fontWeight: 800, color: 'var(--text-primary)' }}>
+                    <Clock size={15} style={{ color: 'var(--accent-brass)' }} /> Bandlik jadvali ({selectedDate})
+                  </h4>
+                  <div className="timeline-legend">
+                    <div className="legend-item"><span className="legend-dot free" /> Bo'sh ({timelineBlocks.filter(b => b.status === 'free').length})</div>
+                    <div className="legend-item"><span className="legend-dot busy" /> Band ({timelineBlocks.filter(b => b.status === 'busy').length})</div>
+                    <div className="legend-item"><span className="legend-dot groom" /> Kuyov ({timelineBlocks.filter(b => b.status === 'groom').length})</div>
                   </div>
+                </div>
+                
+                <div className="today-slots-wrap-grid">
+                  {timelineBlocks.map(block => (
+                    <div 
+                      key={block.time} 
+                      className={`today-slot-pill ${block.status}`}
+                      title={block.tooltip}
+                    >
+                      <span className="pill-dot" />
+                      <span>{block.time}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -808,6 +843,9 @@ export default function AdminDashboard({ onDataChange }) {
                 <h2 style={{ fontSize: '1.35rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--accent-emerald)' }}>Xizmatlar & Narxlar Sozlamalari</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Xizmat narxlarini va navbat davomiyligini belgilash</p>
               </div>
+              <button className="btn btn-primary" onClick={() => setShowAddServiceModal(true)}>
+                <Plus size={15} /> Yangi Xizmat
+              </button>
             </div>
 
             <div className="grid-2">
@@ -875,7 +913,10 @@ export default function AdminDashboard({ onDataChange }) {
                                 {s.name}
                                 {isGroom && <span className="badge badge-pending" style={{ color: 'var(--accent-brass)', background: 'var(--accent-brass-light)', fontSize: '0.55rem', marginLeft: '0.35rem' }}>Premium</span>}
                               </h4>
-                              <button onClick={() => handleEditServiceClick(s)} className="btn btn-secondary btn-icon" style={{ width: '1.75rem', height: '1.75rem', border: 'none', background: 'transparent' }}><Edit2 size={13} /></button>
+                              <div style={{ display: 'flex', gap: '0.2rem' }}>
+                                <button onClick={() => handleEditServiceClick(s)} className="btn btn-secondary btn-icon" style={{ width: '1.75rem', height: '1.75rem', border: 'none', background: 'transparent' }} title="Tahrirlash"><Edit2 size={13} /></button>
+                                <button onClick={() => handleDeleteService(s.id)} className="btn btn-secondary btn-icon" style={{ width: '1.75rem', height: '1.75rem', border: 'none', background: 'transparent', color: 'var(--danger)' }} title="O'chirish"><Trash2 size={13} /></button>
+                              </div>
                             </div>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.15rem', marginBottom: '0.5rem' }}>{s.description}</p>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -1066,6 +1107,56 @@ export default function AdminDashboard({ onDataChange }) {
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>Kiritish</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: MANUAL ADD SERVICE */}
+      {showAddServiceModal && (
+        <div className="modal-overlay">
+          <div className="modal-content animation-slide-up">
+            <button className="modal-close" onClick={() => setShowAddServiceModal(false)}><X size={18} /></button>
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '1.25rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--accent-emerald)' }}>Yangi Xizmat Qo'shish</h3>
+            
+            <form onSubmit={handleCreateService}>
+              <div className="form-group">
+                <label className="form-label">Xizmat Nomi</label>
+                <input type="text" className="form-input" required placeholder="Masalan: Soch boyash" value={newServiceData.name} onChange={(e) => setNewServiceData({...newServiceData, name: e.target.value})} />
+              </div>
+
+              <div className="grid-2">
+                <div className="form-group">
+                  <label className="form-label">Narxi (so'm)</label>
+                  <input type="number" className="form-input" required placeholder="60000" value={newServiceData.price} onChange={(e) => setNewServiceData({...newServiceData, price: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Davomiyligi</label>
+                  <select className="form-select" value={newServiceData.duration} onChange={(e) => setNewServiceData({...newServiceData, duration: e.target.value})}>
+                    <option value={15}>15 daqiqa</option>
+                    <option value={30}>30 daqiqa</option>
+                    <option value={45}>45 daqiqa</option>
+                    <option value={60}>60 daqiqa (1 soat)</option>
+                    <option value={90}>90 daqiqa (1.5 soat)</option>
+                    <option value={120}>120 daqiqa (2 soat)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Turi</label>
+                <select className="form-select" value={newServiceData.type} onChange={(e) => setNewServiceData({...newServiceData, type: e.target.value})}>
+                  <option value="regular">Oddiy Xizmat</option>
+                  <option value="groom">Kuyov Paketi (Tillada)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Tavsif</label>
+                <input type="text" className="form-input" placeholder="Xizmat haqida qisqacha..." value={newServiceData.description} onChange={(e) => setNewServiceData({...newServiceData, description: e.target.value})} />
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>Qo'shish</button>
             </form>
           </div>
         </div>
