@@ -26,7 +26,8 @@ import {
   Wind,
   Smile,
   AlertCircle,
-  Database
+  Database,
+  MessageCircle
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -440,6 +441,12 @@ export default function AdminDashboard({ onDataChange }) {
     return new Intl.NumberFormat('uz-UZ').format(val) + " so'm";
   };
 
+  const buildSmsLink = (booking) => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const message = `Assalomu alaykum, ${booking.clientName}! ${settings.shopName || 'Sartaroshxona'}dan eslatma: navbatingiz ${booking.date} kuni soat ${booking.time}da. Kutamiz!`;
+    return `sms:${booking.clientPhone}${isIOS ? '&' : '?'}body=${encodeURIComponent(message)}`;
+  };
+
   // PIN-CODE SCREEN FOR SECURITY
   if (!isAuthenticated) {
     return (
@@ -649,6 +656,9 @@ export default function AdminDashboard({ onDataChange }) {
                             <Phone size={11} /> {b.clientPhone}
                           </a>
                         </div>
+                        <a href={buildSmsLink(b)} className="btn btn-secondary btn-icon" title="SMS eslatma yuborish">
+                          <MessageCircle size={14} />
+                        </a>
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
