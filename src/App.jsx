@@ -24,8 +24,8 @@ function App() {
         tg.expand(); // Expand the Mini App to full height on mobile
         
         // Apply Telegram colors if available
-        if (tg.setHeaderColor) {
-          tg.setHeaderColor('#f7f9fc');
+        if (tg.isVersionAtLeast && tg.isVersionAtLeast('6.1') && tg.setHeaderColor) {
+          tg.setHeaderColor('#f8fafc');
         }
       } catch (e) {
         console.error("Telegram SDK failed to initialize:", e);
