@@ -74,14 +74,14 @@ export default async function handler(req, res) {
       `📞 <b>Telefon:</b> ${phone}\n` +
       `📍 <b>Manzil:</b> ${address}`;
 
-    if (text === '/xizmatlar') {
+    if (text.includes('xizmat') || text.includes('narx')) {
       replyText = `💈 <b>${shopName} Xizmatlari va Narxlari:</b>\n\n` +
         `• Oddiy Soch Olish — 50,000 so'm\n` +
         `• Soqol Olish / Shakl berish — 30,000 so'm\n` +
         `• Kombinatsiya (Soch + Soqol) — 70,000 so'm\n` +
         `• Kuyov Paketi — 200,000 so'm\n\n` +
-        `Navbat olish uchun pastdagi tugmani bosing 👇`;
-    } else if (text === '/manzil') {
+        `Navbat olish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing 👇`;
+    } else if (text.includes('manzil') || text.includes('telefon') || text.includes('aloqa')) {
       replyText = `📍 <b>Manzil va Bog'lanish:</b>\n\n` +
         `🏢 <b>Sartaroshxona:</b> ${shopName}\n` +
         `📍 <b>Manzil:</b> ${address}\n` +
@@ -89,21 +89,21 @@ export default async function handler(req, res) {
         `Navbat band qilish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing!`;
     }
 
+    // Reply Keyboard Grid (Bottom of screen under message box, like in screenshot)
     const replyMarkup = {
-      inline_keyboard: [
+      keyboard: [
         [
           {
-            text: '✂️ Online Navbat Olish (Mini Ilova)',
+            text: '✂️ Online Navbat Olish',
             web_app: { url: webAppUrl }
           }
         ],
         [
-          {
-            text: '🌐 Saytni Brauzerda Ochish',
-            url: webAppUrl
-          }
+          { text: '💈 Xizmatlar va Narxlar' },
+          { text: '📍 Manzil va Telefon' }
         ]
-      ]
+      ],
+      resize_keyboard: true
     };
 
     await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
