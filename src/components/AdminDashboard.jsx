@@ -54,6 +54,7 @@ export default function AdminDashboard({ onDataChange }) {
 
   // Filters
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [financePeriod, setFinancePeriod] = useState('all'); // 'today' | 'week' | 'month' | 'all'
 
   // Modals
   const [showAddBookingModal, setShowAddBookingModal] = useState(false);
@@ -384,21 +385,56 @@ export default function AdminDashboard({ onDataChange }) {
     loadAllData();
   };
 
+  const isDateInPeriod = (dateStr, period) => {
+    if (period === 'all') return true;
+    const d = new Date(dateStr);
+    const now = new Date();
+    if (period === 'today') {
+      return dateStr === now.toISOString().split('T')[0];
+    }
+    if (period === 'week') {
+      const weekAgo = new Date(now);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return d >= weekAgo && d <= now;
+    }
+    if (period === 'month') {
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    }
+    return true;
+  };
+
   const getStats = () => {
     let income = 0;
     let expense = 0;
-    transactions.forEach(t => {
-      if (t.type === 'income') income += t.amount;
-      else expense += t.amount;
-    });
+    transactions
+      .filter(t => isDateInPeriod(t.date, financePeriod))
+      .forEach(t => {
+        if (t.type === 'income') income += t.amount;
+        else expense += t.amount;
+      });
     return { income, expense, net: income - expense };
   };
 
   const stats = getStats();
-  
+
+  const getTodayBookingStats = () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayBookings = bookings.filter(b => b.date === todayStr);
+    return {
+      total: todayBookings.length,
+      pending: todayBookings.filter(b => b.status === 'pending').length,
+      completed: todayBookings.filter(b => b.status === 'completed').length,
+      cancelled: todayBookings.filter(b => b.status === 'cancelled').length
+    };
+  };
+
+  const todayStats = getTodayBookingStats();
+
   const filteredBookings = bookings
     .filter(b => b.date === selectedDate)
     .sort((a, b) => a.time.localeCompare(b.time));
+
+  const filteredTransactions = transactions.filter(t => isDateInPeriod(t.date, financePeriod));
 
   const formatUzCurrency = (val) => {
     return new Intl.NumberFormat('uz-UZ').format(val) + " so'm";
@@ -479,6 +515,25 @@ export default function AdminDashboard({ onDataChange }) {
         </div>
       </div>
 
+      {/* Mobile bottom tab bar — shown instead of the sidebar on narrow screens */}
+      <div className="mobile-bottom-nav">
+        <button onClick={() => setActiveTab('bookings')} className={`mobile-nav-item ${activeTab === 'bookings' ? 'active' : ''}`}>
+          <CalendarIcon size={19} /> <span>Navbatlar</span>
+        </button>
+        <button onClick={() => setActiveTab('finance')} className={`mobile-nav-item ${activeTab === 'finance' ? 'active' : ''}`}>
+          <CreditCard size={19} /> <span>Moliya</span>
+        </button>
+        <button onClick={() => setActiveTab('services')} className={`mobile-nav-item ${activeTab === 'services' ? 'active' : ''}`}>
+          <Scissors size={19} /> <span>Xizmatlar</span>
+        </button>
+        <button onClick={() => setActiveTab('settings')} className={`mobile-nav-item ${activeTab === 'settings' ? 'active' : ''}`}>
+          <Settings size={19} /> <span>Sozlamalar</span>
+        </button>
+        <button onClick={handleLogout} className="mobile-nav-item" style={{ color: 'var(--danger)' }}>
+          <LogOut size={19} /> <span>Chiqish</span>
+        </button>
+      </div>
+
       {/* Main Panel */}
       <div className="dashboard-main">
         
@@ -493,6 +548,38 @@ export default function AdminDashboard({ onDataChange }) {
               <button className="btn btn-primary" onClick={() => setShowAddBookingModal(true)}>
                 <Plus size={15} /> Yangi Navbat
               </button>
+            </div>
+
+            {/* Today's booking stats */}
+            <div className="stats-grid">
+              <div className="stat-card card">
+                <div className="stat-icon bookings"><CalendarIcon size={16} /></div>
+                <div className="stat-details">
+                  <h5>Bugungi jami navbat</h5>
+                  <div className="stat-value">{todayStats.total}</div>
+                </div>
+              </div>
+              <div className="stat-card card">
+                <div className="stat-icon" style={{ background: 'var(--warning-light)', color: 'var(--warning)' }}><Clock size={16} /></div>
+                <div className="stat-details">
+                  <h5>Kutilmoqda</h5>
+                  <div className="stat-value" style={{ color: 'var(--warning)' }}>{todayStats.pending}</div>
+                </div>
+              </div>
+              <div className="stat-card card">
+                <div className="stat-icon income"><Check size={16} /></div>
+                <div className="stat-details">
+                  <h5>Tugatildi</h5>
+                  <div className="stat-value text-success" style={{ color: 'var(--success)' }}>{todayStats.completed}</div>
+                </div>
+              </div>
+              <div className="stat-card card">
+                <div className="stat-icon expense"><X size={16} /></div>
+                <div className="stat-details">
+                  <h5>Bekor bo'ldi</h5>
+                  <div className="stat-value text-danger" style={{ color: 'var(--danger)' }}>{todayStats.cancelled}</div>
+                </div>
+              </div>
             </div>
 
             {/* Date Filters */}
@@ -607,6 +694,25 @@ export default function AdminDashboard({ onDataChange }) {
               </button>
             </div>
 
+            {/* Period Filter */}
+            <div className="card" style={{ padding: '0.6rem', display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+              {[
+                { key: 'today', label: 'Bugun' },
+                { key: 'week', label: 'Hafta' },
+                { key: 'month', label: 'Oy' },
+                { key: 'all', label: 'Umumiy' }
+              ].map(p => (
+                <button
+                  key={p.key}
+                  className={financePeriod === p.key ? 'btn btn-primary' : 'btn btn-secondary'}
+                  style={{ padding: '0.45rem 0.9rem', fontSize: '0.8rem', flex: 1 }}
+                  onClick={() => setFinancePeriod(p.key)}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
             {/* Stats Cards */}
             <div className="stats-grid">
               <div className="stat-card card">
@@ -636,8 +742,8 @@ export default function AdminDashboard({ onDataChange }) {
             <div className="finance-split">
               <div className="card">
                 <h3 style={{ fontSize: '0.95rem', marginBottom: '0.75rem', fontWeight: 700, color: 'var(--accent-emerald)' }}>Moliyaviy amallar ro'yxati</h3>
-                {transactions.length === 0 ? (
-                  <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0', fontSize: '0.8rem' }}>Amallar kiritilmagan.</p>
+                {filteredTransactions.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0', fontSize: '0.8rem' }}>Bu davrda amallar yo'q.</p>
                 ) : (
                   <div className="transaction-table-container">
                     <table className="transaction-table">
@@ -651,7 +757,7 @@ export default function AdminDashboard({ onDataChange }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {transactions.map(t => (
+                        {filteredTransactions.map(t => (
                           <tr key={t.id}>
                             <td style={{ fontSize: '0.8rem' }}>{t.date}</td>
                             <td><span style={{ fontWeight: 700 }}>{t.category}</span></td>
