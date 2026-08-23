@@ -324,11 +324,14 @@ export default function ClientBooking({ onBookingSuccess }) {
     const endM = date.getMinutes().toString().padStart(2, '0');
     const endTime = `${endH}:${endM}`;
 
+    const telegramUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null;
+
     let newBooking;
     try {
       newBooking = await dbService.addBooking({
         clientName,
         clientPhone,
+        telegramUserId,
         serviceId: selectedService.id,
         serviceName: selectedService.name,
         price: selectedService.price,
