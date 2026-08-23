@@ -17,16 +17,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const update = req.body;
-    if (!update || !update.message) {
-      return res.status(200).json({ ok: true, note: 'No message update' });
+    let update = req.body;
+    if (typeof update === 'string') {
+      try {
+        update = JSON.parse(update);
+      } catch (e) {
+        console.error('JSON parse error on req.body:', e);
+      }
     }
 
-    const chatId = update.message.chat?.id;
-    const text = (update.message.text || '').toLowerCase().trim();
+    if (!update) {
+      return res.status(200).json({ ok: true, note: 'Empty update' });
+    }
+
+    const msg = update.message || update.edited_message || update.callback_query?.message;
+    const chatId = msg?.chat?.id || update.callback_query?.from?.id;
+    const text = (msg?.text || update.callback_query?.data || '').toLowerCase().trim();
 
     if (!chatId) {
-      return res.status(200).json({ ok: true });
+      return res.status(200).json({ ok: true, note: 'No chatId found' });
     }
 
     const queryToken = req.query?.token;
