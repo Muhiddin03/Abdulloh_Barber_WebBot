@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Sozlamalar (ish vaqti, narx va h.k.) hammaga o'qish uchun ochiq,
+    // lekin faqat tizimga kirgan admin o'zgartira oladi.
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Xizmatlar ro'yxati va narxlari xuddi shunday.
+    match /services/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Bronlar: sana/vaqt/status hamma uchun ochiq (bo'sh joylarni ko'rsatish uchun),
+    // mijoz yangi bron yarata oladi, lekin faqat admin o'zgartira/o'chira oladi.
+    match /bookings/{bookingId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if request.auth != null;
+    }
+
+    // Mijozning ismi/telefoni — FAQAT tizimga kirgan admin o'qiy oladi (maxfiylik uchun).
+    // Mijoz bron qilganda shu yerga yozadi, lekin qayta o'qiy olmaydi.
+    match /bookingDetails/{bookingId} {
+      allow read: if request.auth != null;
+      allow create: if true;
+      allow update, delete: if request.auth != null;
+    }
+
+    // Moliyaviy amallar — faqat admin ko'radi va yozadi.
+    match /transactions/{docId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
