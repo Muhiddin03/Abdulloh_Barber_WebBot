@@ -1086,6 +1086,20 @@ export default function AdminDashboard({ onDataChange }) {
                 </p>
               </div>
 
+              <div className="form-group">
+                <label className="form-label">Web App Sayt Havolasi (https://...)</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="https://sartarosh.vercel.app" 
+                  value={settings.webAppUrl || ''} 
+                  onChange={(e) => handleSettingsChange('webAppUrl', e.target.value)} 
+                />
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                  Vercel havolangiz (masalan: <b>https://sartarosh.vercel.app</b>). Telegram faqat https havolalarni qabul qiladi.
+                </p>
+              </div>
+
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-primary" onClick={handleConnectBotMenu}>Botni shu saytga ulash</button>
                 <button type="button" className="btn btn-secondary" onClick={handleSettingsSave}><Save size={14} /> Telegram sozlamalarini saqlash</button>
@@ -1308,15 +1322,20 @@ export default function AdminDashboard({ onDataChange }) {
       alert("Avval Bot Tokenni kiriting va saqlang!");
       return;
     }
-    try {
-      const url = window.location.origin;
 
+    const appUrl = (settings.webAppUrl || window.location.origin).trim();
+    if (!appUrl.startsWith('https://')) {
+      alert("DIQQAT! Telegram Bot WebApp ishlashi uchun havola albatta 'https://' bilan boshlanishi kerak (Masalan: https://sartarosh.vercel.app). Vercel havolasini kiriting va saqlang!");
+      return;
+    }
+
+    try {
       // 1. Set WebApp menu button
       const res1 = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setChatMenuButton`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          menu_button: { type: 'web_app', text: '✂️ Navbat olish', web_app: { url } }
+          menu_button: { type: 'web_app', text: '✂️ Navbat olish', web_app: { url: appUrl } }
         })
       });
       const data1 = await res1.json();
@@ -1337,9 +1356,9 @@ export default function AdminDashboard({ onDataChange }) {
       const data2 = await res2.json();
 
       if (data1.ok && data2.ok) {
-        alert(`Bot muvaffaqiyatli ulana oldi! Endi Telegram botda "✂️ Navbat olish" menyu tugmasi hamda /start, /navbat, /xizmatlar, /manzil buyruqlari avtomatik sozlandi.`);
+        alert(`Bot muvaffaqiyatli ulandi!\n\nURL: ${appUrl}\n\nTelegram botda "✂️ Navbat olish" tugmasi hamda /start, /navbat buyruqlari sozlandi.`);
       } else {
-        alert("Xatolik: " + (data1.description || data2.description || "bot tokenini tekshiring"));
+        alert("Telegram Xatosi: " + (data1.description || data2.description || "Bot Token yoki HTTPS havolani tekshiring"));
       }
     } catch (e) {
       console.error(e);

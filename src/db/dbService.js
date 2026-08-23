@@ -36,7 +36,8 @@ const DEFAULT_SETTINGS = {
   slotInterval: 30,
   smsTemplate: "Assalomu alaykum, {clientName}! {shopName}dan eslatma: navbatingiz {date} kuni soat {time}da ({serviceName}). Sizni kutamiz!",
   telegramBotToken: '',
-  telegramChatId: ''
+  telegramChatId: '',
+  webAppUrl: ''
 };
 
 // Seed Local Database
