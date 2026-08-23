@@ -1356,7 +1356,13 @@ export default function AdminDashboard({ onDataChange }) {
       const data2 = await res2.json();
 
       // 3. Set Webhook URL so bot responds automatically to /start with buttons in chat
-      const webhookUrl = `${appUrl}/api/telegram-webhook`;
+      const params = new URLSearchParams({
+        token: settings.telegramBotToken,
+        appUrl: appUrl,
+        shopName: settings.shopName || '',
+        phone: settings.phone || ''
+      });
+      const webhookUrl = `${appUrl}/api/telegram-webhook?${params.toString()}`;
       const res3 = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setWebhook`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

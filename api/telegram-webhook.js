@@ -29,12 +29,17 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    const queryToken = req.query?.token;
+    const queryAppUrl = req.query?.appUrl;
+    const queryShopName = req.query?.shopName;
+    const queryPhone = req.query?.phone;
+
     // Default settings fallback
-    let shopName = 'Elite Barber Shop';
-    let phone = '+998 90 123 45 67';
+    let shopName = queryShopName || 'Elite Barber Shop';
+    let phone = queryPhone || '+998 90 123 45 67';
     let address = 'Toshkent shahri';
-    let botToken = process.env.VITE_TELEGRAM_BOT_TOKEN;
-    let webAppUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `https://${req.headers.host}`;
+    let botToken = queryToken || process.env.VITE_TELEGRAM_BOT_TOKEN;
+    let webAppUrl = queryAppUrl || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `https://${req.headers.host}`);
 
     // Try reading settings from Firebase if configured
     if (admin.apps.length) {
