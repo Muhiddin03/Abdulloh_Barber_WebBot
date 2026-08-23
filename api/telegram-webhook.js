@@ -1,0 +1,120 @@
+import admin from 'firebase-admin';
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY && !admin.apps.length) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)),
+    });
+  } catch (e) {
+    console.error('Firebase Admin init error:', e);
+  }
+}
+
+export default async function handler(req, res) {
+  // Always return 200 OK to Telegram so it doesn't retry unnecessarily
+  if (req.method !== 'POST') {
+    return res.status(200).send('Telegram Bot Webhook Active');
+  }
+
+  try {
+    const update = req.body;
+    if (!update || !update.message) {
+      return res.status(200).json({ ok: true, note: 'No message update' });
+    }
+
+    const chatId = update.message.chat?.id;
+    const text = (update.message.text || '').toLowerCase().trim();
+
+    if (!chatId) {
+      return res.status(200).json({ ok: true });
+    }
+
+    // Default settings fallback
+    let shopName = 'Elite Barber Shop';
+    let phone = '+998 90 123 45 67';
+    let address = 'Toshkent shahri';
+    let botToken = process.env.VITE_TELEGRAM_BOT_TOKEN;
+    let webAppUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `https://${req.headers.host}`;
+
+    // Try reading settings from Firebase if configured
+    if (admin.apps.length) {
+      try {
+        const db = admin.firestore();
+        const settingsSnap = await db.collection('settings').doc('shop_settings').get();
+        if (settingsSnap.exists) {
+          const s = settingsSnap.data();
+          if (s.shopName) shopName = s.shopName;
+          if (s.phone) phone = s.phone;
+          if (s.address) address = s.address;
+          if (s.telegramBotToken) botToken = s.telegramBotToken;
+          if (s.webAppUrl) webAppUrl = s.webAppUrl;
+        }
+      } catch (e) {
+        console.error('Firestore read error in webhook:', e);
+      }
+    }
+
+    if (!botToken) {
+      return res.status(200).json({ ok: true, warning: 'No bot token configured' });
+    }
+
+    // Ensure webAppUrl uses https protocol
+    webAppUrl = webAppUrl.trim();
+    if (!webAppUrl.startsWith('https://')) {
+      webAppUrl = 'https://' + webAppUrl.replace(/^http:\/\//, '');
+    }
+
+    let replyText = `Assalomu alaykum! 💈 <b>${shopName}</b> rasmiy Telegram botiga xush kelibsiz!\n\n` +
+      `Online navbat olish hamda xizmatlar narxlari bilan tanishish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing.\n\n` +
+      `📞 <b>Telefon:</b> ${phone}\n` +
+      `📍 <b>Manzil:</b> ${address}`;
+
+    if (text === '/xizmatlar') {
+      replyText = `💈 <b>${shopName} Xizmatlari va Narxlari:</b>\n\n` +
+        `• Oddiy Soch Olish — 50,000 so'm\n` +
+        `• Soqol Olish / Shakl berish — 30,000 so'm\n` +
+        `• Kombinatsiya (Soch + Soqol) — 70,000 so'm\n` +
+        `• Kuyov Paketi — 200,000 so'm\n\n` +
+        `Navbat olish uchun pastdagi tugmani bosing 👇`;
+    } else if (text === '/manzil') {
+      replyText = `📍 <b>Manzil va Bog'lanish:</b>\n\n` +
+        `🏢 <b>Sartaroshxona:</b> ${shopName}\n` +
+        `📍 <b>Manzil:</b> ${address}\n` +
+        `📞 <b>Telefon:</b> ${phone}\n\n` +
+        `Navbat band qilish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing!`;
+    }
+
+    const replyMarkup = {
+      inline_keyboard: [
+        [
+          {
+            text: '✂️ Online Navbat Olish',
+            web_app: { url: webAppUrl }
+          }
+        ],
+        [
+          {
+            text: '📞 Sartarosh Bilan Bog\'lanish',
+            url: `tel:${phone.replace(/\s+/g, '')}`
+          }
+        ]
+      ]
+    };
+
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: replyText,
+        parse_mode: 'HTML',
+        reply_markup: replyMarkup
+      })
+    });
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error('Webhook execution error:', err);
+    return res.status(200).json({ ok: true, error: err.message });
+  }
+}

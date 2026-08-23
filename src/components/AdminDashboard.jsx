@@ -1323,9 +1323,9 @@ export default function AdminDashboard({ onDataChange }) {
       return;
     }
 
-    const appUrl = (settings.webAppUrl || window.location.origin).trim();
+    const appUrl = (settings.webAppUrl || window.location.origin).trim().replace(/\/$/, '');
     if (!appUrl.startsWith('https://')) {
-      alert("DIQQAT! Telegram Bot WebApp ishlashi uchun havola albatta 'https://' bilan boshlanishi kerak (Masalan: https://sartarosh.vercel.app). Vercel havolasini kiriting va saqlang!");
+      alert("DIQQAT! Telegram Bot WebApp va Webhook ishlashi uchun havola albatta 'https://' bilan boshlanishi kerak (Masalan: https://sartarosh.vercel.app). Vercel havolangizni yozing va saqlang!");
       return;
     }
 
@@ -1355,10 +1355,19 @@ export default function AdminDashboard({ onDataChange }) {
       });
       const data2 = await res2.json();
 
-      if (data1.ok && data2.ok) {
-        alert(`Bot muvaffaqiyatli ulandi!\n\nURL: ${appUrl}\n\nTelegram botda "✂️ Navbat olish" tugmasi hamda /start, /navbat buyruqlari sozlandi.`);
+      // 3. Set Webhook URL so bot responds automatically to /start with buttons in chat
+      const webhookUrl = `${appUrl}/api/telegram-webhook`;
+      const res3 = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setWebhook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: webhookUrl })
+      });
+      const data3 = await res3.json();
+
+      if (data1.ok && data2.ok && data3.ok) {
+        alert(`🎉 Bot muvaffaqiyatli ulana oldi!\n\nSayt URL: ${appUrl}\n\n1. Telegram botda "✂️ Navbat olish" tugmasi o'rnatildi.\n2. Botingizga /start deb yozganda endi avtomatik javob va tugmalar chiqadi!`);
       } else {
-        alert("Telegram Xatosi: " + (data1.description || data2.description || "Bot Token yoki HTTPS havolani tekshiring"));
+        alert("Telegram Xatosi: " + (data1.description || data2.description || data3.description || "Bot Token yoki HTTPS havolani tekshiring"));
       }
     } catch (e) {
       console.error(e);
