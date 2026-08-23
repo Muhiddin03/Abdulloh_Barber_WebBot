@@ -88,14 +88,14 @@ export default async function handler(req, res) {
       inline_keyboard: [
         [
           {
-            text: '✂️ Online Navbat Olish',
+            text: '✂️ Online Navbat Olish (Mini Ilova)',
             web_app: { url: webAppUrl }
           }
         ],
         [
           {
-            text: '📞 Sartarosh Bilan Bog\'lanish',
-            url: `tel:${phone.replace(/\s+/g, '')}`
+            text: '🌐 Saytni Brauzerda Ochish',
+            url: webAppUrl
           }
         ]
       ]
