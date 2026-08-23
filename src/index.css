@@ -612,6 +612,99 @@ main {
   color: var(--text-primary);
 }
 
+/* Full month calendar */
+.month-calendar {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 0.85rem;
+}
+
+.month-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.month-nav-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.month-nav-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.month-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 0.35rem;
+}
+
+.month-calendar-weekdays span {
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.month-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.month-day-btn {
+  aspect-ratio: 1;
+  min-width: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.month-day-btn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  background: var(--accent-gold-light);
+}
+
+.month-day-btn.today {
+  border-color: rgba(184, 135, 74, 0.4);
+}
+
+.month-day-btn.selected {
+  background: var(--accent-gold);
+  border-color: var(--accent-gold);
+  color: #030304;
+  font-weight: 800;
+}
+
+.month-day-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
 /* Slots Grid */
 .slots-grid {
   display: grid;

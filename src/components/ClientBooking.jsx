@@ -12,7 +12,8 @@ import {
   User, 
   Phone, 
   CheckCircle2, 
-  ChevronRight, 
+  ChevronRight,
+  ChevronLeft,
   PhoneCall,
   MapPin,
   AlertCircle
@@ -25,6 +26,9 @@ const ICON_MAP = {
   Wind: Wind,
   Smile: Smile
 };
+
+const UZ_DAYS = ['Yak', 'Dush', 'Sech', 'Chor', 'Pay', 'Jum', 'Shan'];
+const UZ_MONTHS = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyil', 'Avgust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'];
 
 export default function ClientBooking({ onBookingSuccess }) {
   const [services, setServices] = useState([]);
@@ -41,6 +45,10 @@ export default function ClientBooking({ onBookingSuccess }) {
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   
+  // Full month calendar
+  const [showFullCalendar, setShowFullCalendar] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
+
   // Generated slots
   const [availableDays, setAvailableDays] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -80,18 +88,16 @@ export default function ClientBooking({ onBookingSuccess }) {
 
   const generateDays = () => {
     const days = [];
-    const uzDays = ['Yak', 'Dush', 'Sech', 'Chor', 'Pay', 'Jum', 'Shan'];
-    const uzMonths = ['Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun', 'Iyil', 'Avgust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'];
-    
+
     for (let i = 0; i < 7; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
-      
+
       const dateString = date.toISOString().split('T')[0];
       const dayNum = date.getDate();
-      const dayName = uzDays[date.getDay()];
-      const monthName = uzMonths[date.getMonth()];
-      
+      const dayName = UZ_DAYS[date.getDay()];
+      const monthName = UZ_MONTHS[date.getMonth()];
+
       days.push({
         dateString,
         dayNum,
@@ -100,9 +106,39 @@ export default function ClientBooking({ onBookingSuccess }) {
         isToday: i === 0
       });
     }
-    
+
     setAvailableDays(days);
     setSelectedDate(days[0].dateString);
+  };
+
+  const generateMonthGrid = (monthDate) => {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const firstOfMonth = new Date(year, month, 1);
+    const startOffset = firstOfMonth.getDay(); // 0 = Yakshanba
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const cells = [];
+    for (let i = 0; i < startOffset; i++) {
+      cells.push(null);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const dateString = date.toISOString().split('T')[0];
+      cells.push({
+        dateString,
+        dayNum: d,
+        isPast: dateString < todayStr,
+        isToday: dateString === todayStr
+      });
+    }
+    return cells;
+  };
+
+  const changeMonth = (delta) => {
+    setCalendarMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + delta, 1));
   };
 
   const checkSlotsAvailability = (startStr, durationMins, intervalMins, bookedSlots) => {
@@ -494,24 +530,64 @@ export default function ClientBooking({ onBookingSuccess }) {
           
           <div className="calendar-container card">
             <div>
-              <h4 style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}>
-                <CalendarIcon size={14} className="text-gold" style={{ color: 'var(--accent-brass)' }} /> Sanani tanlang
-              </h4>
-              <div className="calendar-days-scroll">
-                {availableDays.map(day => (
-                  <button
-                    key={day.dateString}
-                    onClick={() => setSelectedDate(day.dateString)}
-                    className={`calendar-day-btn ${selectedDate === day.dateString ? 'selected' : ''}`}
-                  >
-                    <span className="day-name">{day.dayName}</span>
-                    <span className="day-number">{day.dayNum}</span>
-                    <span style={{ fontSize: '0.6rem', marginTop: '2px', opacity: 0.8 }}>
-                      {day.isToday ? 'Bugun' : day.monthName.substring(0, 3)}
-                    </span>
-                  </button>
-                ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <h4 style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, margin: 0 }}>
+                  <CalendarIcon size={14} className="text-gold" style={{ color: 'var(--accent-brass)' }} /> Sanani tanlang
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => { setCalendarMonth(new Date()); setShowFullCalendar(v => !v); }}
+                  style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  {showFullCalendar ? 'Tezkor tanlash' : "To'liq kalendar"}
+                </button>
               </div>
+
+              {!showFullCalendar ? (
+                <div className="calendar-days-scroll">
+                  {availableDays.map(day => (
+                    <button
+                      key={day.dateString}
+                      onClick={() => setSelectedDate(day.dateString)}
+                      className={`calendar-day-btn ${selectedDate === day.dateString ? 'selected' : ''}`}
+                    >
+                      <span className="day-name">{day.dayName}</span>
+                      <span className="day-number">{day.dayNum}</span>
+                      <span style={{ fontSize: '0.6rem', marginTop: '2px', opacity: 0.8 }}>
+                        {day.isToday ? 'Bugun' : day.monthName.substring(0, 3)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="month-calendar">
+                  <div className="month-calendar-header">
+                    <button type="button" className="month-nav-btn" onClick={() => changeMonth(-1)}><ChevronLeft size={16} /></button>
+                    <span>{UZ_MONTHS[calendarMonth.getMonth()]} {calendarMonth.getFullYear()}</span>
+                    <button type="button" className="month-nav-btn" onClick={() => changeMonth(1)}><ChevronRight size={16} /></button>
+                  </div>
+                  <div className="month-calendar-weekdays">
+                    {UZ_DAYS.map(d => <span key={d}>{d}</span>)}
+                  </div>
+                  <div className="month-calendar-grid">
+                    {generateMonthGrid(calendarMonth).map((cell, idx) => (
+                      cell === null ? (
+                        <span key={`empty-${idx}`} />
+                      ) : (
+                        <button
+                          type="button"
+                          key={cell.dateString}
+                          disabled={cell.isPast}
+                          onClick={() => setSelectedDate(cell.dateString)}
+                          className={`month-day-btn ${selectedDate === cell.dateString ? 'selected' : ''} ${cell.isToday ? 'today' : ''}`}
+                        >
+                          {cell.dayNum}
+                        </button>
+                      )
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
