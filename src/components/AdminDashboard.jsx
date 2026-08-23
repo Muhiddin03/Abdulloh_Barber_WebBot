@@ -676,47 +676,66 @@ export default function AdminDashboard({ onDataChange }) {
                 filteredBookings.map(b => {
                   const isGroom = b.serviceName.toLowerCase().includes('kuyov');
                   return (
-                    <div key={b.id} className={`appointment-admin-card card ${isGroom ? 'groom-card' : ''}`} style={{ padding: '0.85rem 1rem' }}>
-                      <div className="apt-service-details">
+                    <div key={b.id} className={`appointment-card card ${isGroom ? 'groom-card' : ''}`}>
+                      {/* Header row: Time Badge, Service Name & Price, Status Badge */}
+                      <div className="apt-card-header">
                         <div className="apt-time-badge" style={{ borderColor: isGroom ? 'var(--accent-brass)' : 'var(--border-color)' }}>
                           <span className="apt-time" style={{ color: isGroom ? 'var(--accent-brass)' : 'var(--accent-emerald)' }}>{b.time}</span>
-                          <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{b.endTime} gacha</div>
+                          <span className="apt-endtime">{b.endTime} gacha</span>
                         </div>
-                        <div className="apt-client-info">
-                          <span className="apt-name" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            {b.clientName}
-                            {isGroom && <Crown size={13} className="text-gold" style={{ color: 'var(--accent-brass)' }} />}
-                          </span>
-                          <a href={`tel:${b.clientPhone}`} className="apt-phone">
-                            <Phone size={11} /> {b.clientPhone}
-                          </a>
-                        </div>
-                        <a href={buildSmsLink(b)} className="btn btn-secondary btn-icon" title="SMS eslatma yuborish">
-                          <MessageCircle size={14} />
-                        </a>
-                      </div>
-
-                      <div className="apt-summary-row">
-                        <div style={{ textAlign: 'right' }}>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{b.serviceName}</span>
-                          <div style={{ fontSize: '0.8rem', color: isGroom ? 'var(--accent-brass)' : 'var(--accent-emerald)', fontWeight: 800 }}>
-                            {formatUzCurrency(b.price)}
+                        
+                        <div className="apt-service-meta">
+                          <div className="apt-service-name">
+                            {b.serviceName}
+                            {isGroom && <Crown size={14} style={{ color: 'var(--accent-brass)' }} />}
                           </div>
+                          <div className="apt-price">{formatUzCurrency(b.price)}</div>
                         </div>
 
                         <span className={`badge badge-${b.status}`}>
                           {b.status === 'pending' ? 'Kutilmoqda' : b.status === 'completed' ? 'Tugatildi' : 'Bekor bo\'ldi'}
                         </span>
+                      </div>
 
-                        <div className="apt-actions">
-                          {b.status === 'pending' && (
-                            <>
-                              <button onClick={() => handleCompleteBooking(b.id)} className="btn btn-success btn-icon" title="Tugatildi"><Check size={15} /></button>
-                              <button onClick={() => handleCancelBooking(b.id)} className="btn btn-danger btn-icon" title="Bekor qilish"><X size={15} /></button>
-                            </>
-                          )}
-                          <button onClick={() => handleDeleteBooking(b.id)} className="btn btn-secondary btn-icon" style={{ color: 'var(--danger)' }} title="O'chirish"><Trash2 size={13} /></button>
+                      {/* Client Info row */}
+                      <div className="apt-client-row">
+                        <div className="apt-client-details">
+                          <User size={15} style={{ color: 'var(--text-muted)' }} />
+                          <span className="apt-client-name">{b.clientName}</span>
+                          <a href={`tel:${b.clientPhone}`} className="apt-client-phone">
+                            <Phone size={12} /> {b.clientPhone}
+                          </a>
                         </div>
+
+                        <a href={buildSmsLink(b)} className="btn-sms-link" title="SMS eslatma yuborish">
+                          <MessageCircle size={14} /> SMS yuborish
+                        </a>
+                      </div>
+
+                      {/* Action Buttons row */}
+                      <div className="apt-actions-row">
+                        {b.status === 'pending' ? (
+                          <>
+                            <button onClick={() => handleCompleteBooking(b.id)} className="btn btn-success btn-apt-action">
+                              <Check size={16} /> Tugatish
+                            </button>
+                            <button onClick={() => handleCancelBooking(b.id)} className="btn btn-danger btn-apt-action">
+                              <X size={16} /> Bekor qilish
+                            </button>
+                            <button onClick={() => handleDeleteBooking(b.id)} className="btn btn-secondary btn-apt-action-delete" title="O'chirish">
+                              <Trash2 size={15} />
+                            </button>
+                          </>
+                        ) : (
+                          <div className="apt-completed-footer">
+                            <span className="apt-completed-text">
+                              {b.status === 'completed' ? '✅ Ushbu navbat yakunlangan' : '❌ Navbat bekor qilingan'}
+                            </span>
+                            <button onClick={() => handleDeleteBooking(b.id)} className="btn btn-danger-soft">
+                              <Trash2 size={14} /> O'chirish
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -790,35 +809,29 @@ export default function AdminDashboard({ onDataChange }) {
                 {filteredTransactions.length === 0 ? (
                   <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0', fontSize: '0.8rem' }}>Bu davrda amallar yo'q.</p>
                 ) : (
-                  <div className="transaction-table-container">
-                    <table className="transaction-table">
-                      <thead>
-                        <tr>
-                          <th>Sana</th>
-                          <th>Kategoriya</th>
-                          <th>Tafsilot</th>
-                          <th>Miqdor</th>
-                          <th>O'chirish</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredTransactions.map(t => (
-                          <tr key={t.id}>
-                            <td style={{ fontSize: '0.8rem' }}>{t.date}</td>
-                            <td><span style={{ fontWeight: 700 }}>{t.category}</span></td>
-                            <td style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{t.description}</td>
-                            <td>
-                              <span className={`tx-amount ${t.type}`} style={{ color: t.type === 'income' ? 'var(--success)' : 'var(--danger)' }}>
-                                {t.type === 'income' ? '+' : '-'}{formatUzCurrency(t.amount)}
-                              </span>
-                            </td>
-                            <td>
-                              <button onClick={() => handleDeleteTx(t.id)} className="btn btn-secondary btn-icon" style={{ width: '1.75rem', height: '1.75rem', border: 'none', background: 'transparent', color: 'var(--danger)' }}><Trash2 size={12} /></button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="transactions-list-container">
+                    {filteredTransactions.map(t => (
+                      <div key={t.id} className="transaction-item-card">
+                        <div className="tx-main-details">
+                          <span className="tx-category">{t.category}</span>
+                          <span className="tx-desc">{t.date} {t.description ? `• ${t.description}` : ''}</span>
+                        </div>
+
+                        <div className="tx-right">
+                          <span className={`tx-amount-badge ${t.type}`}>
+                            {t.type === 'income' ? '+' : '-'}{formatUzCurrency(t.amount)}
+                          </span>
+                          <button 
+                            onClick={() => handleDeleteTx(t.id)} 
+                            className="btn btn-secondary btn-icon" 
+                            style={{ width: '2.1rem', height: '2.1rem', color: 'var(--danger)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
+                            title="Tranzaksiyani o'chirish"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
