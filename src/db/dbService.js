@@ -33,7 +33,9 @@ const DEFAULT_SETTINGS = {
   address: 'Toshkent sh., Chilonzor tumani',
   pinCode: '7777',
   workingHours: { start: '09:00', end: '20:00' },
-  slotInterval: 30
+  slotInterval: 30,
+  telegramBotToken: '',
+  telegramChatId: ''
 };
 
 // Seed Local Database

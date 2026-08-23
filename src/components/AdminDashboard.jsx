@@ -831,6 +831,35 @@ export default function AdminDashboard({ onDataChange }) {
 
               <button type="submit" className="btn btn-primary" style={{ marginTop: '0.25rem' }}><Save size={14} /> O'zgarishlarni Saqlash</button>
             </form>
+
+            <div className="card" style={{ maxWidth: '520px', marginTop: '1.25rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-emerald)', marginBottom: '0.35rem' }}>Telegram Bot Sozlamalari</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '1rem' }}>
+                Yangi navbat kelganda shu botga xabar boradi. Boshqa sartaroshxonaga bersangiz, ular
+                o'zining bot tokenini shu yerga kiritib, mustaqil ishlata oladi — kodni o'zgartirish shart emas.
+              </p>
+
+              <div className="form-group">
+                <label className="form-label">Bot Token (@BotFather'dan olingan)</label>
+                <input type="text" className="form-input" placeholder="123456:ABC-DEF..." value={settings.telegramBotToken || ''} onChange={(e) => handleSettingsChange('telegramBotToken', e.target.value)} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Admin Chat ID</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input type="text" className="form-input" placeholder="Masalan: 123456789" value={settings.telegramChatId || ''} onChange={(e) => handleSettingsChange('telegramChatId', e.target.value)} />
+                  <button type="button" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }} onClick={handleDetectChatId}>Avtomatik topish</button>
+                </div>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                  Avval Telegram'da botingizga <b>/start</b> deb yozing, keyin "Avtomatik topish" tugmasini bosing.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+                <button type="button" className="btn btn-primary" onClick={handleConnectBotMenu}>Botni shu saytga ulash</button>
+                <button type="button" className="btn btn-secondary" onClick={handleSettingsSave}><Save size={14} /> Telegram sozlamalarini saqlash</button>
+              </div>
+            </div>
           </>
         )}
 
@@ -942,5 +971,61 @@ export default function AdminDashboard({ onDataChange }) {
       ...prev,
       workingHours: { ...prev.workingHours, [subField]: value }
     }));
+  }
+
+  async function handleDetectChatId() {
+    if (!settings.telegramBotToken) {
+      alert("Avval Bot Tokenni kiriting!");
+      return;
+    }
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/getUpdates`);
+      const data = await res.json();
+      if (!data.ok) {
+        alert("Bot Token noto'g'ri ko'rinadi. Qaytadan tekshiring.");
+        return;
+      }
+      if (data.result.length === 0) {
+        alert("Hali botga hech kim yozmagan. Avval Telegram'da botingizga /start deb yozing, so'ng qayta urinib ko'ring.");
+        return;
+      }
+      const last = data.result[data.result.length - 1];
+      const chatId = last.message?.chat?.id;
+      if (!chatId) {
+        alert("Chat ID topilmadi, qayta urinib ko'ring.");
+        return;
+      }
+      handleSettingsChange('telegramChatId', String(chatId));
+      alert(`Chat ID topildi: ${chatId}. Endi pastdagi "O'zgarishlarni Saqlash" tugmasini bosing.`);
+    } catch (e) {
+      console.error(e);
+      alert("Xatolik yuz berdi. Internet aloqasi va Bot Tokenni tekshiring.");
+    }
+  }
+
+  async function handleConnectBotMenu() {
+    if (!settings.telegramBotToken) {
+      alert("Avval Bot Tokenni kiriting va saqlang!");
+      return;
+    }
+    try {
+      const url = window.location.origin;
+      const res = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setChatMenuButton`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          menu_button: { type: 'web_app', text: 'Navbat olish', web_app: { url } }
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert(`Bot muvaffaqiyatli ulandi! Endi botda "Navbat olish" tugmasi shu saytni (${url}) ochadi.`);
+      } else {
+        alert("Xatolik: " + (data.description || "noma'lum xato"));
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Xatolik yuz berdi. Internet aloqasi va Bot Tokenni tekshiring.");
+    }
   }
 }

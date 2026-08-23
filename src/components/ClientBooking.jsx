@@ -348,7 +348,7 @@ export default function ClientBooking({ onBookingSuccess }) {
 
     setCreatedBooking(newBooking);
     setStep(4);
-    notifyAdminNewBooking(newBooking);
+    notifyAdminNewBooking(newBooking, settings);
     if (onBookingSuccess) {
       onBookingSuccess();
     }
