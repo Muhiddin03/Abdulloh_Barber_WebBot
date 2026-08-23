@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../db/dbService';
 import { notifyAdminNewBooking } from '../telegram';
+import { formatUzPhone, isValidUzPhone } from '../utils/phoneUtils';
 import { 
   Scissors, 
   Sparkles, 
@@ -44,7 +45,7 @@ export default function ClientBooking({ onBookingSuccess }) {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
+  const [clientPhone, setClientPhone] = useState('+998 ');
   
   // Full month calendar
   const [showFullCalendar, setShowFullCalendar] = useState(false);
@@ -326,6 +327,11 @@ export default function ClientBooking({ onBookingSuccess }) {
     e.preventDefault();
     if (!clientName || !clientPhone || !selectedService || !selectedDate || !selectedTime) {
       alert("Barcha maydonlarni to'ldiring!");
+      return;
+    }
+
+    if (!isValidUzPhone(clientPhone)) {
+      alert("Iltimos, to'liq 9 xonali telefon raqamingizni kiriting! (Masalan: +998 90 123 45 67)");
       return;
     }
     
@@ -732,7 +738,8 @@ export default function ClientBooking({ onBookingSuccess }) {
                   required 
                   placeholder="+998 90 123 45 67" 
                   value={clientPhone} 
-                  onChange={(e) => setClientPhone(e.target.value)} 
+                  onChange={(e) => setClientPhone(formatUzPhone(e.target.value))} 
+                  onFocus={() => { if (!clientPhone || clientPhone.trim() === '') setClientPhone('+998 '); }}
                 />
               </div>
             </div>

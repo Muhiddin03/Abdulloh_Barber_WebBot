@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../db/dbService';
 import { auth, isFirebaseEnabled } from '../db/firebase';
+import { formatUzPhone, isValidUzPhone } from '../utils/phoneUtils';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { 
   Lock, 
@@ -300,6 +301,11 @@ export default function AdminDashboard({ onDataChange }) {
     e.preventDefault();
     if (!newBooking.clientName || !newBooking.clientPhone || !newBooking.serviceId || !newBooking.time) {
       alert("Iltimos barcha maydonlarni to'ldiring!");
+      return;
+    }
+
+    if (!isValidUzPhone(newBooking.clientPhone)) {
+      alert("Iltimos, to'liq 9 xonali telefon raqamini kiriting! (Masalan: +998 90 123 45 67)");
       return;
     }
 
@@ -1013,7 +1019,14 @@ export default function AdminDashboard({ onDataChange }) {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Telefon Raqami</label>
-                  <input type="text" className="form-input" required value={settings.phone || ''} onChange={(e) => handleSettingsChange('phone', e.target.value)} />
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    required 
+                    placeholder="+998 90 123 45 67" 
+                    value={settings.phone || ''} 
+                    onChange={(e) => handleSettingsChange('phone', formatUzPhone(e.target.value))} 
+                  />
                 </div>
               </div>
 
@@ -1225,7 +1238,15 @@ export default function AdminDashboard({ onDataChange }) {
 
               <div className="form-group">
                 <label className="form-label">Telefon Raqami</label>
-                <input type="tel" className="form-input" required placeholder="+998 90 123 45 67" value={newBooking.clientPhone} onChange={(e) => setNewBooking({...newBooking, clientPhone: e.target.value})} />
+                <input 
+                  type="tel" 
+                  className="form-input" 
+                  required 
+                  placeholder="+998 90 123 45 67" 
+                  value={newBooking.clientPhone} 
+                  onChange={(e) => setNewBooking({...newBooking, clientPhone: formatUzPhone(e.target.value)})} 
+                  onFocus={() => { if (!newBooking.clientPhone || newBooking.clientPhone.trim() === '') setNewBooking({...newBooking, clientPhone: '+998 '}); }}
+                />
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>Saqlash</button>
