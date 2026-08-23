@@ -25,7 +25,7 @@ function App() {
         
         // Apply Telegram colors if available
         if (tg.setHeaderColor) {
-          tg.setHeaderColor('#faf8f4');
+          tg.setHeaderColor('#f7f9fc');
         }
       } catch (e) {
         console.error("Telegram SDK failed to initialize:", e);
