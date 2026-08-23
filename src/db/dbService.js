@@ -37,7 +37,11 @@ const DEFAULT_SETTINGS = {
   smsTemplate: "Assalomu alaykum, {clientName}! {shopName}dan eslatma: navbatingiz {date} kuni soat {time}da ({serviceName}). Sizni kutamiz!",
   telegramBotToken: '',
   telegramChatId: '',
-  webAppUrl: ''
+  webAppUrl: '',
+  barberName: 'Abdulloh Master',
+  barberBio: '10 yillik tajribaga ega professional erkaklar sartaroshi va stilist. Zamonaviy soch va soqol uslublari bo\'yicha yuqori malakali mutaxassis.',
+  barberImage: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=400',
+  barberInstagram: 'https://instagram.com'
 };
 
 // Seed Local Database

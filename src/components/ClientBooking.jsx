@@ -16,7 +16,8 @@ import {
   ChevronLeft,
   PhoneCall,
   MapPin,
-  AlertCircle
+  AlertCircle,
+  Award
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -512,6 +513,47 @@ export default function ClientBooking({ onBookingSuccess }) {
                 </button>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Barber Profile Card (About Master) */}
+      {step === 1 && (
+        <div className="card barber-profile-card animation-slide-up" style={{ marginTop: '1.25rem', padding: '1.15rem' }}>
+          <h4 style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'var(--font-body)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+            <Sparkles size={15} style={{ color: 'var(--accent-brass)' }} /> Sartarosh Haqida Ma'lumot
+          </h4>
+
+          <div style={{ display: 'flex', gap: '1.1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="barber-avatar-container" style={{ position: 'relative', width: '85px', height: '85px', borderRadius: '50%', overflow: 'hidden', border: '3px solid var(--accent-gold)', flexShrink: 0, boxShadow: 'var(--shadow-gold)' }}>
+              <img 
+                src={settings.barberImage || 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=400'} 
+                alt={settings.barberName || 'Abdulloh Sartarosh'} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+            
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem', flexWrap: 'wrap' }}>
+                <h3 style={{ fontSize: '1.15rem', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  {settings.barberName || 'Abdulloh Master'}
+                </h3>
+                <span className="badge badge-completed" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>PRO MASTER</span>
+              </div>
+              
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.45', marginBottom: '0.65rem' }}>
+                {settings.barberBio || '10 yillik tajribaga ega professional erkaklar sartaroshi va stilist. Zamonaviy soch va soqol uslublari bo\'yicha yuqori malakali mutaxassis.'}
+              </p>
+
+              <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
+                  <Award size={14} style={{ color: 'var(--accent-brass)' }} /> 10+ yillik tajriba
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}>
+                  <Smile size={14} style={{ color: 'var(--success)' }} /> 5000+ mamnun mijozlar
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       )}

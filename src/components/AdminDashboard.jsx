@@ -1059,6 +1059,46 @@ export default function AdminDashboard({ onDataChange }) {
                 </p>
               </div>
 
+              <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '1rem', marginTop: '0.5rem' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--accent-emerald)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Crown size={15} style={{ color: 'var(--accent-brass)' }} /> Sartarosh (Usta) Profili Sozlamalari
+                </h4>
+
+                <div className="grid-2">
+                  <div className="form-group">
+                    <label className="form-label">Usta (Sartarosh) Ismi</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="Masalan: Abdulloh Sartarosh" 
+                      value={settings.barberName || ''} 
+                      onChange={(e) => handleSettingsChange('barberName', e.target.value)} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Usta Rasmi URL (Rasm havolasi)</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="https://..." 
+                      value={settings.barberImage || ''} 
+                      onChange={(e) => handleSettingsChange('barberImage', e.target.value)} 
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Usta Haqida Ma'lumot (Bio / Tajriba)</label>
+                  <textarea 
+                    className="form-input" 
+                    rows={2} 
+                    placeholder="10 yillik tajribaga ega master..." 
+                    value={settings.barberBio || ''} 
+                    onChange={(e) => handleSettingsChange('barberBio', e.target.value)} 
+                  />
+                </div>
+              </div>
+
               <div className="form-group" style={{ maxWidth: '160px' }}>
                 <label className="form-label">Kirish PIN-kodi</label>
                 <input type="password" maxLength={4} className="form-input" placeholder="7777" required value={settings.pinCode || ''} onChange={(e) => handleSettingsChange('pinCode', e.target.value)} />
