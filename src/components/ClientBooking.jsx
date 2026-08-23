@@ -507,7 +507,7 @@ export default function ClientBooking({ onBookingSuccess }) {
                     {isGroom ? <Crown size={20} /> : <IconComponent size={20} />}
                   </div>
                   <div className="service-details">
-                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                       {service.name}
                       {isGroom && <span className="badge badge-pending" style={{ color: 'var(--accent-brass)', background: 'var(--accent-brass-light)', fontSize: '0.6rem' }}>Premium</span>}
                     </h4>
