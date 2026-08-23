@@ -949,15 +949,11 @@ export default function AdminDashboard({ onDataChange }) {
             </form>
 
             <div className="card" style={{ maxWidth: '520px', marginTop: '1.25rem' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-emerald)', marginBottom: '0.35rem' }}>Telegram Bot Sozlamalari</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginBottom: '1rem' }}>
-                Yangi navbat kelganda shu botga xabar boradi. Boshqa sartaroshxonaga bersangiz, ular
-                o'zining bot tokenini shu yerga kiritib, mustaqil ishlata oladi — kodni o'zgartirish shart emas.
-              </p>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-emerald)', marginBottom: '1rem' }}>Telegram Bot Sozlamalari</h3>
 
               <div className="form-group">
                 <label className="form-label">Bot Token (@BotFather'dan olingan)</label>
-                <input type="text" className="form-input" placeholder="123456:ABC-DEF..." value={settings.telegramBotToken || ''} onChange={(e) => handleSettingsChange('telegramBotToken', e.target.value)} />
+                <input type="password" className="form-input" placeholder="123456:ABC-DEF..." value={settings.telegramBotToken || ''} onChange={(e) => handleSettingsChange('telegramBotToken', e.target.value)} />
               </div>
 
               <div className="form-group">

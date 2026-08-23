@@ -16,6 +16,8 @@
   --accent-gold-light: rgba(37, 99, 235, 0.08);
 
   --accent-emerald: #1e3a8a;   /* To'q ko'k urg'u (sarlavhalar uchun) */
+  --accent-brass: #d97706;         /* Premium/Kuyov paketi uchun amber urg'u */
+  --accent-brass-light: rgba(217, 119, 6, 0.1);
   --accent-platinum: #0f172a;  /* To'q matn */
   --accent-silver: #64748b;    /* O'rta darajadagi ko'kimtir kulrang */
   --text-primary: #0f172a;     /* Deyarli qora, sovuq ton */
