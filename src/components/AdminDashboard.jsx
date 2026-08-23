@@ -661,7 +661,7 @@ export default function AdminDashboard({ onDataChange }) {
                         </a>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <div className="apt-summary-row">
                         <div style={{ textAlign: 'right' }}>
                           <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>{b.serviceName}</span>
                           <div style={{ fontSize: '0.8rem', color: isGroom ? 'var(--accent-brass)' : 'var(--accent-emerald)', fontWeight: 800 }}>
