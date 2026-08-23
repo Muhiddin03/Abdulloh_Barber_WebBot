@@ -39,6 +39,14 @@ const ICON_MAP = {
   Smile: Smile
 };
 
+const TIME_OPTIONS = [
+  '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30', 
+  '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', 
+  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', 
+  '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', 
+  '22:00', '22:30', '23:00', '23:30'
+];
+
 export default function AdminDashboard({ onDataChange }) {
   // Authentication
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -490,9 +498,26 @@ export default function AdminDashboard({ onDataChange }) {
     return new Intl.NumberFormat('uz-UZ').format(val) + " so'm";
   };
 
+  const handleRestoreDefaultServices = async () => {
+    if (window.confirm("Barcha namuna xizmatlarni (Oddiy soch, Soqol, Kuyov paketi) qayta tiklamoqchimisiz?")) {
+      await dbService.restoreDefaultServices();
+      loadAllData();
+      if (onDataChange) onDataChange();
+      alert("Namuna xizmatlar muvaffaqiyatli tiklandi!");
+    }
+  };
+
   const buildSmsLink = (booking) => {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const message = `Assalomu alaykum, ${booking.clientName}! ${settings.shopName || 'Sartaroshxona'}dan eslatma: navbatingiz ${booking.date} kuni soat ${booking.time}da. Kutamiz!`;
+    const template = settings.smsTemplate || "Assalomu alaykum, {clientName}! {shopName}dan eslatma: navbatingiz {date} kuni soat {time}da ({serviceName}). Sizni kutamiz!";
+    
+    const message = template
+      .replace(/{clientName}/g, booking.clientName || 'Mijoz')
+      .replace(/{shopName}/g, settings.shopName || 'Barber Shop')
+      .replace(/{date}/g, booking.date || '')
+      .replace(/{time}/g, booking.time || '')
+      .replace(/{serviceName}/g, booking.serviceName || 'Xizmat');
+
     return `sms:${booking.clientPhone}${isIOS ? '&' : '?'}body=${encodeURIComponent(message)}`;
   };
 
@@ -874,9 +899,14 @@ export default function AdminDashboard({ onDataChange }) {
                 <h2 style={{ fontSize: '1.35rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--accent-emerald)' }}>Xizmatlar & Narxlar Sozlamalari</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Xizmat narxlarini va navbat davomiyligini belgilash</p>
               </div>
-              <button className="btn btn-primary" onClick={() => setShowAddServiceModal(true)}>
-                <Plus size={15} /> Yangi Xizmat
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button className="btn btn-secondary" onClick={handleRestoreDefaultServices} title="Standart namuna xizmatlarni qayta tiklash">
+                  <Sparkles size={14} /> Namuna Xizmatlar
+                </button>
+                <button className="btn btn-primary" onClick={() => setShowAddServiceModal(true)}>
+                  <Plus size={15} /> Yangi Xizmat
+                </button>
+              </div>
             </div>
 
             <div className="grid-2">
@@ -995,11 +1025,15 @@ export default function AdminDashboard({ onDataChange }) {
               <div className="grid-3">
                 <div className="form-group">
                   <label className="form-label">Ish boshi</label>
-                  <input type="text" className="form-input" placeholder="09:00" required value={settings.workingHours?.start || ''} onChange={(e) => handleWorkingHoursChange('start', e.target.value)} />
+                  <select className="form-select" value={settings.workingHours?.start || '09:00'} onChange={(e) => handleWorkingHoursChange('start', e.target.value)}>
+                    {TIME_OPTIONS.map(t => <option key={`start-${t}`} value={t}>{t}</option>)}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Ish yakuni</label>
-                  <input type="text" className="form-input" placeholder="20:00" required value={settings.workingHours?.end || ''} onChange={(e) => handleWorkingHoursChange('end', e.target.value)} />
+                  <select className="form-select" value={settings.workingHours?.end || '20:00'} onChange={(e) => handleWorkingHoursChange('end', e.target.value)}>
+                    {TIME_OPTIONS.map(t => <option key={`end-${t}`} value={t}>{t}</option>)}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Slot oralig'i (daqiqa)</label>
@@ -1010,6 +1044,19 @@ export default function AdminDashboard({ onDataChange }) {
                     <option value={60}>60 daqiqa</option>
                   </select>
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">SMS Xabar Shabloni (Mijozga boradigan eslatma matni)</label>
+                <textarea 
+                  className="form-input" 
+                  rows={3} 
+                  value={settings.smsTemplate || "Assalomu alaykum, {clientName}! {shopName}dan eslatma: navbatingiz {date} kuni soat {time}da ({serviceName}). Sizni kutamiz!"} 
+                  onChange={(e) => handleSettingsChange('smsTemplate', e.target.value)} 
+                />
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                  O'zgaruvchilar: <b>&#123;clientName&#125;</b>, <b>&#123;shopName&#125;</b>, <b>&#123;date&#125;</b>, <b>&#123;time&#125;</b>, <b>&#123;serviceName&#125;</b>
+                </p>
               </div>
 
               <div className="form-group" style={{ maxWidth: '160px' }}>
@@ -1263,18 +1310,36 @@ export default function AdminDashboard({ onDataChange }) {
     }
     try {
       const url = window.location.origin;
-      const res = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setChatMenuButton`, {
+
+      // 1. Set WebApp menu button
+      const res1 = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setChatMenuButton`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          menu_button: { type: 'web_app', text: 'Navbat olish', web_app: { url } }
+          menu_button: { type: 'web_app', text: '✂️ Navbat olish', web_app: { url } }
         })
       });
-      const data = await res.json();
-      if (data.ok) {
-        alert(`Bot muvaffaqiyatli ulandi! Endi botda "Navbat olish" tugmasi shu saytni (${url}) ochadi.`);
+      const data1 = await res1.json();
+
+      // 2. Set Bot Commands list (/start, /navbat, /xizmatlar, /manzil)
+      const res2 = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setMyCommands`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          commands: [
+            { command: 'start', description: '✂️ Sartaroshxona Mini Ilovasini Ochish' },
+            { command: 'navbat', description: '📅 Online Navbat Olish' },
+            { command: 'xizmatlar', description: '💈 Xizmatlar Va Narxlar' },
+            { command: 'manzil', description: '📍 Sartaroshxona Manzili Va Telefon' }
+          ]
+        })
+      });
+      const data2 = await res2.json();
+
+      if (data1.ok && data2.ok) {
+        alert(`Bot muvaffaqiyatli ulana oldi! Endi Telegram botda "✂️ Navbat olish" menyu tugmasi hamda /start, /navbat, /xizmatlar, /manzil buyruqlari avtomatik sozlandi.`);
       } else {
-        alert("Xatolik: " + (data.description || "noma'lum xato"));
+        alert("Xatolik: " + (data1.description || data2.description || "bot tokenini tekshiring"));
       }
     } catch (e) {
       console.error(e);

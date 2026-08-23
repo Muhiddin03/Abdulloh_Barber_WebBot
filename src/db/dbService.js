@@ -34,6 +34,7 @@ const DEFAULT_SETTINGS = {
   pinCode: '7777',
   workingHours: { start: '09:00', end: '20:00' },
   slotInterval: 30,
+  smsTemplate: "Assalomu alaykum, {clientName}! {shopName}dan eslatma: navbatingiz {date} kuni soat {time}da ({serviceName}). Sizni kutamiz!",
   telegramBotToken: '',
   telegramChatId: ''
 };
@@ -186,6 +187,17 @@ export const dbService = {
       return true;
     }
     return false;
+  },
+
+  restoreDefaultServices: async () => {
+    if (isFirebaseEnabled) {
+      for (const s of DEFAULT_SERVICES) {
+        await setDoc(doc(db, 'services', s.id), s);
+      }
+      return DEFAULT_SERVICES;
+    }
+    localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(DEFAULT_SERVICES));
+    return DEFAULT_SERVICES;
   },
 
   // --- BOOKINGS ---
