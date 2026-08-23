@@ -27,7 +27,8 @@ import {
   Smile,
   AlertCircle,
   Database,
-  MessageCircle
+  MessageCircle,
+  User
 } from 'lucide-react';
 
 const ICON_MAP = {
