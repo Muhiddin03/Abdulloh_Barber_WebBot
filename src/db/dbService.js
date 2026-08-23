@@ -377,5 +377,29 @@ export const dbService = {
       return;
     }
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  },
+
+  clearAllData: async () => {
+    if (isFirebaseEnabled) {
+      try {
+        const bookingsSnap = await getDocs(collection(db, 'bookings'));
+        for (const d of bookingsSnap.docs) {
+          await deleteDoc(doc(db, 'bookings', d.id));
+        }
+        const detailsSnap = await getDocs(collection(db, 'bookingDetails'));
+        for (const d of detailsSnap.docs) {
+          await deleteDoc(doc(db, 'bookingDetails', d.id));
+        }
+        const txSnap = await getDocs(collection(db, 'transactions'));
+        for (const d of txSnap.docs) {
+          await deleteDoc(doc(db, 'transactions', d.id));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify([]));
+    return true;
   }
 };

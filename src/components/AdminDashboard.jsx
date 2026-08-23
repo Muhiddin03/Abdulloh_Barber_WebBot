@@ -417,6 +417,23 @@ export default function AdminDashboard({ onDataChange }) {
     loadAllData();
   };
 
+  const handleResetAllData = async () => {
+    const confirmFirst = window.confirm(
+      "DIQQAT! Barcha kiritilgan navbatlar hamda moliya amallari butunlay o'chiriladi va tizim 0 holatiga keltiriladi. Davom etasizmi?"
+    );
+    if (!confirmFirst) return;
+
+    const confirmSecond = window.confirm(
+      "Tasdiqlaysizmi? Ushbu amalni ortga qaytarib bo'lmaydi! Loyiha yangi mijozga topshirish uchun toza holatga keladi."
+    );
+    if (!confirmSecond) return;
+
+    await dbService.clearAllData();
+    alert("Barcha navbatlar va moliya ma'lumotlari tozalandi! Tizim 0 dan ishga tushdi.");
+    loadAllData();
+    if (onDataChange) onDataChange();
+  };
+
   const isDateInPeriod = (dateStr, period) => {
     if (period === 'all') return true;
     const d = new Date(dateStr);
@@ -1025,6 +1042,25 @@ export default function AdminDashboard({ onDataChange }) {
                 <button type="button" className="btn btn-primary" onClick={handleConnectBotMenu}>Botni shu saytga ulash</button>
                 <button type="button" className="btn btn-secondary" onClick={handleSettingsSave}><Save size={14} /> Telegram sozlamalarini saqlash</button>
               </div>
+            </div>
+
+            {/* RESET ALL DATA FOR NEW OWNER / CLEAN SLATE */}
+            <div className="card" style={{ maxWidth: '520px', marginTop: '1.25rem', borderColor: 'rgba(244, 63, 94, 0.35)', background: 'linear-gradient(150deg, #ffffff 0%, rgba(244, 63, 94, 0.03) 100%)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--danger)', marginBottom: '0.5rem' }}>
+                <AlertCircle size={18} />
+                <h3 style={{ fontSize: '1rem', fontWeight: 800 }}>Tizim Ma'lumotlarini Tozalash (0 dan boshlash)</h3>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '1rem' }}>
+                Loyihani yangi egasiga topshirish oldidan barcha sinov navbatlarini hamda moliya kirim-chiqimlarini to'liq tozalar va <b>0 dan toza holatga</b> keltiradi.
+              </p>
+              <button 
+                type="button" 
+                className="btn btn-danger" 
+                onClick={handleResetAllData}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+              >
+                <Trash2 size={15} /> Barcha Navbat va Moliya Ma'lumotlarini Tozalash
+              </button>
             </div>
           </>
         )}
