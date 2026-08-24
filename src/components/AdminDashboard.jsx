@@ -425,10 +425,44 @@ export default function AdminDashboard({ onDataChange }) {
     }
   };
 
+  const syncBotSettingsWithWebhook = async (setts = settings) => {
+    if (!setts.telegramBotToken) return;
+    try {
+      const appUrl = (setts.webAppUrl || window.location.origin).trim().replace(/\/$/, '');
+      if (!appUrl.startsWith('https://')) return;
+
+      const servicesList = await dbService.getServices();
+      const servicesStr = servicesList.map(s => `${s.name}:${s.price}`).join('|');
+
+      const params = new URLSearchParams({
+        token: setts.telegramBotToken,
+        appUrl: appUrl,
+        shopName: setts.shopName || '',
+        phone: setts.phone || '',
+        address: setts.address || '',
+        barberName: setts.barberName || '',
+        barberBio: setts.barberBio || '',
+        startWork: setts.workingHours?.start || '09:00',
+        endWork: setts.workingHours?.end || '20:00',
+        services: servicesStr
+      });
+
+      const webhookUrl = `${appUrl}/api/telegram-webhook?${params.toString()}`;
+      await fetch(`https://api.telegram.org/bot${setts.telegramBotToken}/setWebhook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: webhookUrl })
+      });
+    } catch (err) {
+      console.error('Auto webhook sync error:', err);
+    }
+  };
+
   const handleSettingsSave = async (e) => {
     e.preventDefault();
     await dbService.saveSettings(settings);
-    alert("Sozlamalar saqlandi!");
+    await syncBotSettingsWithWebhook(settings);
+    alert("Sozlamalar saqlandi va Telegram Bot ma'lumotlari yangilandi!");
     loadAllData();
   };
 
@@ -1436,7 +1470,20 @@ export default function AdminDashboard({ onDataChange }) {
       const data2 = await res2.json();
 
       // 3. Set Webhook URL so bot responds automatically to /start with buttons in chat
-      const webhookUrl = `${appUrl}/api/telegram-webhook?token=${encodeURIComponent(settings.telegramBotToken)}&appUrl=${encodeURIComponent(appUrl)}`;
+      const servicesStr = services.map(s => `${s.name}:${s.price}`).join('|');
+      const params = new URLSearchParams({
+        token: settings.telegramBotToken,
+        appUrl: appUrl,
+        shopName: settings.shopName || '',
+        phone: settings.phone || '',
+        address: settings.address || '',
+        barberName: settings.barberName || '',
+        barberBio: settings.barberBio || '',
+        startWork: settings.workingHours?.start || '09:00',
+        endWork: settings.workingHours?.end || '20:00',
+        services: servicesStr
+      });
+      const webhookUrl = `${appUrl}/api/telegram-webhook?${params.toString()}`;
       const res3 = await fetch(`https://api.telegram.org/bot${settings.telegramBotToken}/setWebhook`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

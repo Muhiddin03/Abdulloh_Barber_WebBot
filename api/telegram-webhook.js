@@ -52,14 +52,17 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, note: 'No chatId' });
     }
 
-    // Default settings
-    let shopName = 'Elite Barber Shop';
-    let phone = '+998 90 123 45 67';
-    let address = 'Toshkent sh., Chilonzor tumani';
-    let barberName = 'Abdulloh Master';
-    let barberBio = '10 yillik tajribaga ega professional erkaklar sartaroshi va stilist.';
+    // Default settings overridden by Query Params first, then Firestore
+    let shopName = req.query?.shopName || 'Elite Barber Shop';
+    let phone = req.query?.phone || '+998 90 123 45 67';
+    let address = req.query?.address || 'Toshkent sh., Chilonzor tumani';
+    let barberName = req.query?.barberName || 'Abdulloh Master';
+    let barberBio = req.query?.barberBio || '10 yillik tajribaga ega professional erkaklar sartaroshi va stilist.';
+    let startWork = req.query?.startWork || '09:00';
+    let endWork = req.query?.endWork || '20:00';
     let botToken = req.query?.token || process.env.VITE_TELEGRAM_BOT_TOKEN;
     let webAppUrl = req.query?.appUrl || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `https://${req.headers.host}`);
+    let servicesRaw = req.query?.services || '';
 
     // Read from Firestore if available
     try {
@@ -75,6 +78,20 @@ export default async function handler(req, res) {
           if (s.webAppUrl) webAppUrl = s.webAppUrl;
           if (s.barberName) barberName = s.barberName;
           if (s.barberBio) barberBio = s.barberBio;
+          if (s.workingHours?.start) startWork = s.workingHours.start;
+          if (s.workingHours?.end) endWork = s.workingHours.end;
+        }
+
+        const servicesSnap = await db.collection('services').get();
+        if (!servicesSnap.empty) {
+          const list = [];
+          servicesSnap.forEach(doc => {
+            const data = doc.data();
+            list.push(`${data.name}:${data.price}`);
+          });
+          if (list.length > 0) {
+            servicesRaw = list.join('|');
+          }
         }
       }
     } catch (e) {
@@ -96,22 +113,39 @@ export default async function handler(req, res) {
       `📝 <b>Ma'lumot:</b> ${barberBio}\n\n` +
       `📍 <b>Manzil:</b> ${address}\n` +
       `📞 <b>Telefon:</b> ${phone}\n` +
-      `🕒 <b>Ish vaqti:</b> Har kuni 09:00 - 20:00\n\n` +
+      `🕒 <b>Ish vaqti:</b> Har kuni ${startWork} - ${endWork}\n\n` +
       `Online navbat olish hamda xizmatlar bilan tanishish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing 👇`;
 
     if (text.includes('xizmat') || text.includes('narx')) {
+      let servicesFormattedText = '';
+      if (servicesRaw) {
+        const items = servicesRaw.split('|').filter(Boolean);
+        servicesFormattedText = items.map(item => {
+          const parts = item.split(':');
+          const name = parts[0] ? parts[0].trim() : 'Xizmat';
+          const priceVal = parts[1] ? parseFloat(parts[1]) : 0;
+          const formattedPrice = new Intl.NumberFormat('uz-UZ').format(priceVal) + " so'm";
+          return `• <b>${name}</b> — ${formattedPrice}`;
+        }).join('\n');
+      }
+
+      if (!servicesFormattedText) {
+        servicesFormattedText = `• <b>Oddiy Soch Olish</b> — 50,000 so'm\n` +
+          `• <b>Soqol Olish / Shakl berish</b> — 30,000 so'm\n` +
+          `• <b>Kombinatsiya (Soch + Soqol)</b> — 70,000 so'm\n` +
+          `• <b>Kuyov Paketi</b> — 200,000 so'm`;
+      }
+
       replyText = `💈 <b>${shopName} Xizmatlari va Narxlari:</b>\n\n` +
-        `• Oddiy Soch Olish — 50,000 so'm\n` +
-        `• Soqol Olish / Shakl berish — 30,000 so'm\n` +
-        `• Kombinatsiya (Soch + Soqol) — 70,000 so'm\n` +
-        `• Kuyov Paketi — 200,000 so'm\n\n` +
+        `${servicesFormattedText}\n\n` +
         `Navbat olish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing 👇`;
     } else if (text.includes('manzil') || text.includes('telefon') || text.includes('aloqa')) {
       replyText = `📍 <b>Manzil va Bog'lanish:</b>\n\n` +
         `🏢 <b>Sartaroshxona:</b> ${shopName}\n` +
         `👑 <b>Usta:</b> ${barberName}\n` +
         `📍 <b>Manzil:</b> ${address}\n` +
-        `📞 <b>Telefon:</b> ${phone}\n\n` +
+        `📞 <b>Telefon:</b> ${phone}\n` +
+        `🕒 <b>Ish vaqti:</b> ${startWork} - ${endWork}\n\n` +
         `Navbat band qilish uchun pastdagi <b>"✂️ Online Navbat Olish"</b> tugmasini bosing!`;
     }
 
