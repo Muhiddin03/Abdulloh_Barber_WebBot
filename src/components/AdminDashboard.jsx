@@ -394,7 +394,8 @@ export default function AdminDashboard({ onDataChange }) {
     };
     await dbService.updateService(updated);
     setEditingServiceId(null);
-    loadAllData();
+    await loadAllData();
+    await syncBotSettingsWithWebhook(settings);
   };
 
   const handleCreateService = async (e) => {
@@ -413,14 +414,16 @@ export default function AdminDashboard({ onDataChange }) {
     });
     setShowAddServiceModal(false);
     setNewServiceData({ name: '', price: '', duration: '30', description: '', type: 'regular', icon: 'Scissors' });
-    loadAllData();
+    await loadAllData();
+    await syncBotSettingsWithWebhook(settings);
     if (onDataChange) onDataChange();
   };
 
   const handleDeleteService = async (id) => {
     if (window.confirm("Ushbu xizmatni o'chirasizmi?")) {
       await dbService.deleteService(id);
-      loadAllData();
+      await loadAllData();
+      await syncBotSettingsWithWebhook(settings);
       if (onDataChange) onDataChange();
     }
   };
@@ -541,7 +544,8 @@ export default function AdminDashboard({ onDataChange }) {
   const handleRestoreDefaultServices = async () => {
     if (window.confirm("Barcha namuna xizmatlarni (Oddiy soch, Soqol, Kuyov paketi) qayta tiklamoqchimisiz?")) {
       await dbService.restoreDefaultServices();
-      loadAllData();
+      await loadAllData();
+      await syncBotSettingsWithWebhook(settings);
       if (onDataChange) onDataChange();
       alert("Namuna xizmatlar muvaffaqiyatli tiklandi!");
     }
